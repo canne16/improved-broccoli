@@ -12,9 +12,10 @@ answer:
 method: get
 request: "get_pos"
 
-answer:
+answer: \\
+position:
 {
-    circles: [{x: (float), y: (float), r: (float)}, ...],
+    circles: [{x: (float), y: (float), r: (float), vx: (float), vy: (float)}, ...],
     polygons:
     [
         {
@@ -29,13 +30,14 @@ answer:
 method: get
 request: "update_pos"
 
-answer:
+answer: \\
+position:
 {
-    circles: [{dx: (float), dy: (float), dr: (float)}, ...],
+    circles: [{x: (float), y: (float), r: (float)}, ...],
     polygons:
     [
         {
-            nodes: [{dx: (float), dy: (float), vx: (float), vy: (float)}, ...],
+            nodes: [{x: (float), y: (float), vx: (float), vy: (float)}, ...],
             new_edges: [{n1: (int), n2: (int)}, ...],
             del_edges: [{n1: (int), n2: (int)}, ...],
             direction: (float) // In radiand I think
