@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <uv.h>
 #include <string.h>
+#include <server.h>
 
 uv_loop_t *loop;        //  цикл для обработки событий
 uv_udp_t recv_socket;   //  
@@ -37,6 +38,8 @@ void add_client(const struct sockaddr* addr) {
 	client = malloc(sizeof(client_t));									//	Добавляем пользователя в список, выделяем 
 	client->addr = *(const struct sockaddr_in*)addr;					//	память, присваиваем адрес и индивидуальный буфер
 	printf("Adding client with port %d\n", client->addr.sin_port);		//
+	char* s = malloc(17);
+	printf("Client address: %s\n", get_ip_str(&client->addr, s, 17));		//
 	client->buf = uv_buf_init(malloc(1024), 1024);						//
 	client->next = game.clients;										//
 	game.clients = client;												//
@@ -110,7 +113,7 @@ int main(){
 
 	uv_udp_init(loop, &recv_socket);	//	привязка сокета к циклу
     uv_timer_init(loop, &game_tick);	//	привязка таймера к циклу
-    uv_ip4_addr("127.0.0.1", 8787, &recv_addr);	//	задание адреса
+    uv_ip4_addr("192.168.0.104", 8787, &recv_addr);	//	задание адреса
     uv_udp_bind(&recv_socket, (const struct sockaddr*)&recv_addr, UV_UDP_REUSEADDR);	//	настройка UDP
     uv_timer_start(&game_tick, on_timer, 100, 1000);
 	uv_udp_recv_start(&recv_socket, alloc_buffer, on_read);
