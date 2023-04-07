@@ -4,8 +4,14 @@
 #include <string.h>
 #include "server.h"
 
+#define STR_BUFFER 256
+
+int send_pos();
+
+
 uv_loop_t *loop;        //  цикл для обработки событий
 uv_udp_t recv_socket;   //  
+uv_udp_t send_socket;
 uv_timer_t game_tick;   //  тикрейт получения и отправки сообщений сервера (=engine_tick??)
 
 
@@ -39,7 +45,7 @@ void add_client(const struct sockaddr* addr) {
 	client->addr = *(const struct sockaddr_in*)addr;					//	память, присваиваем адрес и индивидуальный буфер
 	printf("Adding client with port %d\n", client->addr.sin_port);		//
 	char* s = malloc(17);
-	printf("Client address: %s\n", get_ip_str(&client->addr, s, 17));		//
+	printf("Client address: %s\n", get_ip_str(&client->addr, s, 17));	//
 	client->buf = uv_buf_init(malloc(1024), 1024);						//
 	client->next = game.clients;										//
 	game.clients = client;												//
@@ -58,20 +64,18 @@ void on_read(uv_udp_t* req, ssize_t nread, const uv_buf_t* buf,	const struct soc
 
 	if ( nread > 0 ) {	//	если при получении не было ошибок и пакет не пустой
 		printf("data got: %s\n", buf->base);	//	buf->base == содержимое пакета без адреса и прочего
-		if (strncmp(buf->base, "NEW", 3) == 0) {	//	команда NEW == запрос на подключение к игре
-			printf("adding new client\n");
+		if (strncmp(buf->base, "initial", 7) == 0) {	//	команда NEW == запрос на подключение к игре
+			printf("Adding new client\n");
 			add_client(addr);
-		}
-		/*
-			Обработка других команд или данных пользователя
 		
-		} else if ( strncmp(buf->base, "INC", 3) == 0) {
-			move_rocket(1);
-		} else if ( strncmp(buf->base, "DEC", 3) == 0) {
-			move_rocket(-1);
-		} else if ( !strncmp(buf->base, "EXIT", 4) ) {
-			remove_client(addr);
-		*/
+		//	Обработка других команд или данных пользователя
+		} else if ( strncmp(buf->base, "get_pos", 7) == 0) {
+			send_pos();
+		} else if ( strncmp(buf->base, "update_pos", 10) == 0) {
+			//
+		} else if ( !strncmp(buf->base, "exit", 4) ) {
+			// remove_client(addr);
+		}
 	} else if ( nread == 0 ) {	//	получили пустой пакет
 		//	printf("Empty data got\n");
 	} else {
@@ -86,7 +90,7 @@ void on_read(uv_udp_t* req, ssize_t nread, const uv_buf_t* buf,	const struct soc
 /// @param status ??
 
 void on_send(uv_udp_send_t* req, int status) {
-	printf("Send done %p with status %d %s\n", req->handle, status, uv_err_name(status));
+	//printf("Send done %p with status %d %s\n", req->handle, status, uv_err_name(status));
 	free(req);	
 }
 
@@ -107,18 +111,39 @@ void alloc_buffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf){
 }
 
 
+int send_pos(){
+	client_t * client; 
+	for (client=game.clients; client; client=client->next) {
+		char addr[17] = {0};
+		uv_ip4_name(&client->addr, addr, 16);
+		printf("Sending pos to client %s:%d\n", addr, client->addr.sin_port);
+		uv_udp_send_t* send_req = malloc(sizeof(uv_udp_send_t));
+		
+		client->buf.len = sprintf(client->buf.base, "hello");
+		printf("Buf: %s\n", client->buf.base);
+		int err = uv_udp_send(send_req, &recv_socket, &client->buf, 1, (const struct sockaddr*)&client->addr, on_send);
+		if ( err ) 
+			printf("Send %p returned: %d %s\n", &recv_socket, err, uv_err_name(err));
+	}
+    
+    return 0;
+}
+
+
+
 int main(){
-    loop = uv_default_loop();			//	создание цикла
+    loop = uv_default_loop();		//	создание цикла
     struct sockaddr_in recv_addr;	//	инициализация ардеса получения пакетов
 
 	uv_udp_init(loop, &recv_socket);	//	привязка сокета к циклу
     uv_timer_init(loop, &game_tick);	//	привязка таймера к циклу
-    uv_ip4_addr("192.168.0.104", 8787, &recv_addr);	//	задание адреса
+    uv_ip4_addr("127.0.0.1", 8787, &recv_addr);	//	задание адреса
     uv_udp_bind(&recv_socket, (const struct sockaddr*)&recv_addr, UV_UDP_REUSEADDR);	//	настройка UDP
     uv_timer_start(&game_tick, on_timer, 100, 1000);
 	uv_udp_recv_start(&recv_socket, alloc_buffer, on_read);
 
-    printf("Server started\n");
-    uv_run(loop, UV_RUN_DEFAULT);
+	printf("Server started\n");	
+	return uv_run(loop, UV_RUN_DEFAULT);
+
 
 }
