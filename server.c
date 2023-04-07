@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <uv.h>
 #include <string.h>
-#include <server.h>
+#include "server.h"
 
 uv_loop_t *loop;        //  цикл для обработки событий
 uv_udp_t recv_socket;   //  
