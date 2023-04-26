@@ -127,15 +127,6 @@ void step(double delta_max)
     if (i_min == -1)
         return;
 
-    //double vx_cm = (circles[i_min]->m * circles[i_min]->vx + circles[j_min]->m * circles[j_min]->vx) / (circles[i_min]->m + circles[j_min]->m);
-    //double vy_cm = (circles[i_min]->m * circles[i_min]->vy + circles[j_min]->m * circles[j_min]->vy) / (circles[i_min]->m + circles[j_min]->m);
-    //double vx1_cm = circles[i_min]->vx - vx_cm;
-    //double vy1_cm = circles[i_min]->vy - vy_cm;
-    //double vx2_cm = circles[j_min]->vx - vx_cm;
-    //double vy2_cm = circles[j_min]->vy - vy_cm;
-
-    //double phi = atan2(circles[j_min]->y - circles[i_min]->y, circles[j_min]->x - circles[i_min]->x);
-
     printf("Counting impulses\n");
 
     printf("Step 1\n");
@@ -158,9 +149,9 @@ void step(double delta_max)
     fflush(stdin);
 
     double a, b, c; // ax^2 + 2bx + c = 0
-    a = m1 * (m1 + m2);
-    b = m1 * (m1 * vn1 + m2 * vn2);
-    c = vn1 * vn1 * m1 * (m1 - m2) + 2 * vn1 * vn2 * m1 * m2;
+    a = m1 + m2;
+    b = -(m1 * vn1 + m2 * vn2);
+    c = vn1 * vn1 * (m1 - m2) + 2 * vn1 * vn2 * m2;
 
     printf("Step 2.2\n");
     fflush(stdin);
@@ -170,10 +161,9 @@ void step(double delta_max)
     printf("Step 3.1\n");
     fflush(stdin);
 
-    a, b, c; // ax^2 + 2bx + c = 0
-    a = m2 * (m1 + m2);
-    b = m2 * (m2 * vn2 + m1 * vn1);
-    c = vn2 * vn2 * m2 * (m2 - m1) + 2 * vn1 * vn2 * m1 * m2;
+    a = m1 + m2;
+    b = -(m1 * vn1 + m2 * vn2);
+    c = vn2 * vn2 * (m2 - m1) + 2 * vn1 * vn2 * m1;
 
     printf("Step 3.2\n");
     fflush(stdin);
