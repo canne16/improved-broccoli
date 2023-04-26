@@ -1,5 +1,5 @@
 BIN_DIR := build
-FLAGS := -shared -fPIC 
+FLAGS := -shared -fPIC
 
 all: dvizh_ok.so
 
