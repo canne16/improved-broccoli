@@ -37,41 +37,45 @@ parser = argparse.ArgumentParser(
                     prog="Physic demonstration",
                     description="Demonstration of physic engine written by vlad_cool for MIPT project")
 
-parser.add_argument("-m", "--mode", type=int,
-                    help="Modes, from 0 to 3")
+parser.add_argument("-m", "--mode", type=int, default=0,
+                    help="MODES: 0 - Brownian motion, 1 - Wave, 2 - chaotic, 3 - diffusion")
 
 args = parser.parse_args()
 mode = args.mode
 
-if mode == 0: # Броумовское движение
+if mode == 0: # Brownian motion
     TIME_K = 5
+    n = 400
     dvizh_ok.add_circle(ctypes.c_double(200), ctypes.c_double(200), ctypes.c_double(WIDTH / 2), ctypes.c_double(HEIGHT / 2), ctypes.c_double(0), ctypes.c_double(0))
 
-    for i in range(400):
+    for i in range(n):
         v = randint(100, 300)
         phi = randint(0, 2000000) / 1000000
         dvizh_ok.add_circle(ctypes.c_double(2), ctypes.c_double(1), ctypes.c_double(WIDTH / 2), ctypes.c_double(HEIGHT / 2), ctypes.c_double(v * math.sin(math.pi * phi)), ctypes.c_double(v * math.cos(math.pi * phi)))
-elif mode == 1:
+elif mode == 1: # wave
     TIME_K = 1
     n = 36
     for i in range(n - 1):
         dvizh_ok.add_circle(ctypes.c_double(16), ctypes.c_double(1), ctypes.c_double(WIDTH / 2 - n / 2 * 50 + i * 50), ctypes.c_double(HEIGHT / 2), ctypes.c_double(0), ctypes.c_double(0))
     dvizh_ok.add_circle(ctypes.c_double(16), ctypes.c_double(1), ctypes.c_double(WIDTH / 2 - n / 2 * 50 + n * 50), ctypes.c_double(HEIGHT / 2), ctypes.c_double(256), ctypes.c_double(0))
-elif mode == 2:
+elif mode == 2: # chaotic
     TIME_K = 10
-    for i in range(256):
+    n = 256
+    for i in range(n):
         r = randint(3, 30)
         dvizh_ok.add_circle(ctypes.c_double(r), ctypes.c_double(r*r), ctypes.c_double(randint(int(r) + 2, WIDTH - int(r) - 2)), ctypes.c_double(randint(int(r) + 2, HEIGHT - int(r) - 2)), ctypes.c_double(randint(-50, 50)), ctypes.c_double(randint(-50, 50)))
-elif mode == 3:
+elif mode == 3: # diffusion
     TIME_K = 1
     COLORS = [RED, BLUE]
-    for i in range(16):
-        for k in range(12):
+    n_w = 24
+    n_h = 16
+    r = min(WIDTH // n_w, HEIGHT // n_h) // 2 - 4
+    for i in range(n_h):
+        for k in range(n_w // 2):
             j = k
-            r = 15
-            dvizh_ok.add_circle(ctypes.c_double(r), ctypes.c_double(r*r), ctypes.c_double(WIDTH / 24 * (j+0.5)), ctypes.c_double(HEIGHT / 16 * (i+0.5)), ctypes.c_double(randint(-20, 20)), ctypes.c_double(randint(-5, 5)))
-            j = k + 12
-            dvizh_ok.add_circle(ctypes.c_double(r), ctypes.c_double(r*r), ctypes.c_double(WIDTH / 24 * (j+0.5)), ctypes.c_double(HEIGHT / 16 * (i+0.5)), ctypes.c_double(randint(-20, 20)), ctypes.c_double(randint(-5, 5)))
+            dvizh_ok.add_circle(ctypes.c_double(r), ctypes.c_double(r*r), ctypes.c_double(WIDTH / n_w * (j+0.5)), ctypes.c_double(HEIGHT / n_h * (i+0.5)), ctypes.c_double(randint(-50, 50)), ctypes.c_double(randint(-50, 50)))
+            j = k + n_w // 2
+            dvizh_ok.add_circle(ctypes.c_double(r), ctypes.c_double(r*r), ctypes.c_double(WIDTH / n_w * (j+0.5)), ctypes.c_double(HEIGHT / n_h * (i+0.5)), ctypes.c_double(randint(-50, 50)), ctypes.c_double(randint(-50, 50)))
 
 dvizh_ok.is_null.restype = ctypes.c_int
 dvizh_ok.get_r.restype = ctypes.c_double
