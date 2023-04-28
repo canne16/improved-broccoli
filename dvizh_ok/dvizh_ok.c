@@ -114,7 +114,7 @@ void step(double delta_max)
 
             //printf("dt: %lf\n", dt);
 
-            if (dt < 0)
+            if (dt < -1e-6)
                 continue;
 
             if (dt_min > dt)
@@ -124,7 +124,6 @@ void step(double delta_max)
                 j_min = j;
             }
         }
-
 
         dt = (border_x_min - circles[i]->x + circles[i]->r) / circles[i]->vx;
         if (dt >= 0 && dt_min > dt && circles[i]->vx < 0)
