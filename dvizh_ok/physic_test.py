@@ -11,7 +11,7 @@ HEIGHT = 1080
 MICROSTEPS = 1 # 1-10 best values, 1 is the best
 
 FPS = 60 # Frames per second
-TPS = 10 # Ticks per second, not implemented yet, using FPS instead`
+#TPS = 10 # Ticks per second, not implemented yet, using FPS instead`
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
@@ -28,9 +28,11 @@ for i in range(36):
     COLORS.append(color)
 
 dvizh_ok = ctypes.cdll.LoadLibrary("./dvizh_ok.so")
+dvizh_ok.add_circle.argtypes = [ctypes.c_double] * 6
+dvizh_ok.set_borders.argtypes = [ctypes.c_double] * 4
 
 dvizh_ok.init()
-dvizh_ok.set_borders(ctypes.c_double(0), ctypes.c_double(0), ctypes.c_double(WIDTH), ctypes.c_double(HEIGHT))
+dvizh_ok.set_borders(0, 0, WIDTH, HEIGHT)
 
 mode = 0
 parser = argparse.ArgumentParser(
@@ -43,39 +45,44 @@ parser.add_argument("-m", "--mode", type=int, default=0,
 args = parser.parse_args()
 mode = args.mode
 
-if mode == 0: # Brownian motion
-    TIME_K = 5
-    n = 400
-    dvizh_ok.add_circle(ctypes.c_double(200), ctypes.c_double(200), ctypes.c_double(WIDTH / 2), ctypes.c_double(HEIGHT / 2), ctypes.c_double(0), ctypes.c_double(0))
+match mode:
+    case 0: # Brownian motion
+        TIME_K = 5
+        n = 400
+        dvizh_ok.add_circle(200, 200, WIDTH / 2, HEIGHT / 2, 0, 0)
 
-    for i in range(n):
-        v = randint(100, 300)
-        phi = randint(0, 2000000) / 1000000
-        dvizh_ok.add_circle(ctypes.c_double(2), ctypes.c_double(1), ctypes.c_double(WIDTH / 2), ctypes.c_double(HEIGHT / 2), ctypes.c_double(v * math.sin(math.pi * phi)), ctypes.c_double(v * math.cos(math.pi * phi)))
-elif mode == 1: # wave
-    TIME_K = 1
-    n = 36
-    for i in range(n - 1):
-        dvizh_ok.add_circle(ctypes.c_double(16), ctypes.c_double(1), ctypes.c_double(WIDTH / 2 - n / 2 * 50 + i * 50), ctypes.c_double(HEIGHT / 2), ctypes.c_double(0), ctypes.c_double(0))
-    dvizh_ok.add_circle(ctypes.c_double(16), ctypes.c_double(1), ctypes.c_double(WIDTH / 2 - n / 2 * 50 + n * 50), ctypes.c_double(HEIGHT / 2), ctypes.c_double(256), ctypes.c_double(0))
-elif mode == 2: # chaotic
-    TIME_K = 10
-    n = 256
-    for i in range(n):
-        r = randint(3, 30)
-        dvizh_ok.add_circle(ctypes.c_double(r), ctypes.c_double(r*r), ctypes.c_double(randint(int(r) + 2, WIDTH - int(r) - 2)), ctypes.c_double(randint(int(r) + 2, HEIGHT - int(r) - 2)), ctypes.c_double(randint(-50, 50)), ctypes.c_double(randint(-50, 50)))
-elif mode == 3: # diffusion
-    TIME_K = 1
-    COLORS = [RED, BLUE]
-    n_w = 24
-    n_h = 16
-    r = min(WIDTH // n_w, HEIGHT // n_h) // 2 - 4
-    for i in range(n_h):
-        for k in range(n_w // 2):
-            j = k
-            dvizh_ok.add_circle(ctypes.c_double(r), ctypes.c_double(r*r), ctypes.c_double(WIDTH / n_w * (j+0.5)), ctypes.c_double(HEIGHT / n_h * (i+0.5)), ctypes.c_double(randint(-50, 50)), ctypes.c_double(randint(-50, 50)))
-            j = k + n_w // 2
-            dvizh_ok.add_circle(ctypes.c_double(r), ctypes.c_double(r*r), ctypes.c_double(WIDTH / n_w * (j+0.5)), ctypes.c_double(HEIGHT / n_h * (i+0.5)), ctypes.c_double(randint(-50, 50)), ctypes.c_double(randint(-50, 50)))
+        for i in range(n):
+            v = randint(100, 300)
+            phi = randint(0, 2000000) / 1000000
+            dvizh_ok.add_circle(2, 1, WIDTH / 2, HEIGHT / 2, v * math.sin(math.pi * phi), v * math.cos(math.pi * phi))
+    case 1: # wave
+        TIME_K = 1
+        n = 36
+        for i in range(n - 1):
+            dvizh_ok.add_circle(16, 1, WIDTH / 2 - n / 2 * 50 + i * 50, HEIGHT / 2, 0, 0)
+        dvizh_ok.add_circle(16, 1, WIDTH / 2 - n / 2 * 50 + n * 50, HEIGHT / 2, 500, 0)
+    case 2: # chaotic
+        TIME_K = 10
+        n = 256
+        for i in range(n):
+            r = randint(3, 30)
+            dvizh_ok.add_circle(r, r*r, randint(int(r) + 2, WIDTH - int(r) - 2), randint(int(r) + 2, HEIGHT - int(r) - 2), randint(-50, 50), randint(-50, 50))
+    case 3: # diffusion
+        TIME_K = 1
+        COLORS = [RED, BLUE]
+        n_w = 24
+        n_h = 16
+        r = min(WIDTH // n_w, HEIGHT // n_h) // 2 - 4
+        for i in range(n_h):
+            for k in range(n_w // 2):
+                j = k
+                dvizh_ok.add_circle(r, r*r, WIDTH / n_w * (j+0.5), HEIGHT / n_h * (i+0.5), randint(-50, 50), randint(-50, 50))
+                j = k + n_w // 2
+                dvizh_ok.add_circle(r, r*r, WIDTH / n_w * (j+0.5), HEIGHT / n_h * (i+0.5), randint(-50, 50), randint(-50, 50))
+    case _:
+        print("Unknowh mode")
+        parser.print_help()
+        exit(0)
 
 dvizh_ok.is_null.restype = ctypes.c_int
 dvizh_ok.get_r.restype = ctypes.c_double
