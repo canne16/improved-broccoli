@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!venv/bin/python3
 import ctypes
 import math
 from random import randint
@@ -38,7 +38,7 @@ parser = argparse.ArgumentParser(
                     description="Demonstration of physic engine written by vlad_cool for MIPT project")
 
 parser.add_argument("-m", "--mode", type=int,
-                    help="Modes, from 0 to 4")
+                    help="Modes, from 0 to 3")
 
 args = parser.parse_args()
 mode = args.mode
@@ -64,23 +64,14 @@ elif mode == 2:
         dvizh_ok.add_circle(ctypes.c_double(r), ctypes.c_double(r*r), ctypes.c_double(randint(int(r) + 2, WIDTH - int(r) - 2)), ctypes.c_double(randint(int(r) + 2, HEIGHT - int(r) - 2)), ctypes.c_double(randint(-50, 50)), ctypes.c_double(randint(-50, 50)))
 elif mode == 3:
     TIME_K = 1
-    for i in range(24):
-        for j in range(36):
-            r = randint(3, 20)
-            dvizh_ok.add_circle(ctypes.c_double(r), ctypes.c_double(r*r), ctypes.c_double(WIDTH / 36 * (j+0.5)), ctypes.c_double(HEIGHT / 24 * (i+0.5)), ctypes.c_double(randint(-5, 5)), ctypes.c_double(randint(-5, 5)))
-elif mode == 4:
-    TIME_K = 1
     COLORS = [RED, BLUE]
-    for i in range(24):
-        for k in range(18):
+    for i in range(16):
+        for k in range(12):
             j = k
             r = 15
-            #r = randint(3, 20)
-            dvizh_ok.add_circle(ctypes.c_double(r), ctypes.c_double(r*r), ctypes.c_double(WIDTH / 36 * (j+0.5)), ctypes.c_double(HEIGHT / 24 * (i+0.5)), ctypes.c_double(randint(-5, 5)), ctypes.c_double(randint(-5, 5)))
-
-            j = k + 18
-            #r = randint(3, 20)
-            dvizh_ok.add_circle(ctypes.c_double(r), ctypes.c_double(r*r), ctypes.c_double(WIDTH / 36 * (j+0.5)), ctypes.c_double(HEIGHT / 24 * (i+0.5)), ctypes.c_double(randint(-5, 5)), ctypes.c_double(randint(-5, 5)))
+            dvizh_ok.add_circle(ctypes.c_double(r), ctypes.c_double(r*r), ctypes.c_double(WIDTH / 24 * (j+0.5)), ctypes.c_double(HEIGHT / 16 * (i+0.5)), ctypes.c_double(randint(-20, 20)), ctypes.c_double(randint(-5, 5)))
+            j = k + 12
+            dvizh_ok.add_circle(ctypes.c_double(r), ctypes.c_double(r*r), ctypes.c_double(WIDTH / 24 * (j+0.5)), ctypes.c_double(HEIGHT / 16 * (i+0.5)), ctypes.c_double(randint(-20, 20)), ctypes.c_double(randint(-5, 5)))
 
 dvizh_ok.is_null.restype = ctypes.c_int
 dvizh_ok.get_r.restype = ctypes.c_double
