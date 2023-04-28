@@ -36,11 +36,7 @@ mode = 0
 parser = argparse.ArgumentParser(
                     prog="Physic demonstration",
                     description="Demonstration of physic engine written by vlad_cool for MIPT project")
-#parser.add_argument("-m", "--mode")      # option that takes a value
 
-#parser.add_argument("-m", "--mode", dest="accumulate", action="store_const",
-#                    const=mode, default=0,
-#                    help="Modes, from 0 to 4")
 parser.add_argument("-m", "--mode", type=int,
                     help="Modes, from 0 to 4")
 
