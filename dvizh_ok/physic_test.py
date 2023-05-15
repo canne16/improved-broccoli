@@ -58,9 +58,11 @@ match mode:
     case 1: # wave
         TIME_K = 1
         n = 36
+        r = 24
+        k = 2 * r
         for i in range(n - 1):
-            dvizh_ok.add_circle(16, 1, WIDTH / 2 - n / 2 * 50 + i * 50, HEIGHT / 2, 0, 0)
-        dvizh_ok.add_circle(16, 1, WIDTH / 2 - n / 2 * 50 + n * 50, HEIGHT / 2, 500, 0)
+            dvizh_ok.add_circle(r, 1, WIDTH / 2 - n / 2 * k + i * k, HEIGHT / 2, 0, 0)
+        dvizh_ok.add_circle(r, 1, WIDTH / 2 - n / 2 * k + n * k, HEIGHT / 2, 200, 0)
     case 2: # chaotic
         TIME_K = 10
         n = 256
