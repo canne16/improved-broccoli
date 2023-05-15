@@ -2,3 +2,5 @@ venv
 dvizh_ok/__pycache__
 dvizh_ok/dvizh_ok.so
 .vscode
+pipe_example/out
+pipe_example/in
