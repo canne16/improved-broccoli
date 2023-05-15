@@ -85,29 +85,44 @@ async def get_new():
             circ1[i].clr = Dt[i]['clr']
             circ1[i].v = Dt[i]['v']
             circ1[i].v = [circ1[i].v[0]/FPS, circ1[i].v[1]/FPS]
-        time.sleep(5)
+        #await asyncio.sleep(2)
 
-        FLAG = True
+    fnew.close()
+    #exit(1)
+
+    FLAG = True
     
 
 async def get_changes():
-    print(" тут будет get_new и обработка доп параметров")
+    print(" тут будет get_ch и обработка доп параметров")
         #print(ticks)
+    
 
     global circ1
+    global ScrnClr
 
-    with open("testdata.json", "r") as fnew: 
+    with open("testdata.json", "r") as fnew:
         Dt = json.load(fnew)
         ScrnClr = WHITE
         print(len(Dt))
         for i in range(len(Dt)):
             #print(i)
-            circ1[i].center = Dt[i]['center']
             circ1[i].clr = Dt[i]['clr']
             circ1[i].v = Dt[i]['v']
             circ1[i].v = [circ1[i].v[0]/FPS, circ1[i].v[1]/FPS]
+    fnew.close()
 
+async def draw():
+    global circ1
 
+    screen.fill(ScrnClr)
+    
+    for i in range(len(circ1)):
+        circ1[i].draw(screen)
+        circ1[i].center[0] += circ1[i].v[0]
+        circ1[i].center[1] += circ1[i].v[1]
+        print(circ1[i].center[0], circ1[i].v)
+    pygame.display.flip()
 
 # Цикл игры
 running = True
@@ -129,16 +144,16 @@ while running:
     DeltaTicks = ticks - lTicks
     
 
-    if 2 < DeltaTicks:
+    if not FLAG:
         lTicks = ticks
         print(" тут будет get_new и обработка доп параметров")
         #print(ticks)
 
-        #get_new()
+        get_new()
 
         FLAG = True
 
-        with open("testdata.json", "r") as fnew: 
+        """with open("testdata.json", "r") as fnew: 
             Dt = json.load(fnew)
             ScrnClr = WHITE
             print(len(Dt))
@@ -149,21 +164,19 @@ while running:
                 circ1[i].v = Dt[i]['v']
                 circ1[i].v = [circ1[i].v[0]/FPS, circ1[i].v[1]/FPS]
             
-        fnew.close()
+        fnew.close()"""
 
         
         
 
 
     else:   #посмотреть, как часто требуется обновлять
-        print("get_changes()")
-        #get_changes()
+        print("get_ch")
+        
 
         #with open("data.json", "r") as fchanges: 
         #data = json.load(fchanges)
-        #fchanges.close()
-
-    
+        #fchanges.close()    
     ###############################
     # перевод полученного сообщения в переменные
     
@@ -171,15 +184,12 @@ while running:
     ###############################
     # отрисовка
     
-    screen.fill(ScrnClr)
     
-    for i in range(len(circ1)):
-        circ1[i].draw(screen)
-        circ1[i].center[0] += circ1[i].v[0]
-        circ1[i].center[1] += circ1[i].v[1]
-        print(circ1[i].center[0], circ1[i].v)
-    pygame.display.flip()
     ###############################
+    futures = [get_changes(),get_new(),draw()]
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(asyncio.wait(futures)) 
 
 
 
