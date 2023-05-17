@@ -2,6 +2,7 @@ import time
 import asyncio
 
 FINISHED = False
+pipe = open("fp_ser_eng", "r")
 
 class Proto(asyncio.DatagramProtocol):
     def __init__(self):
@@ -21,11 +22,25 @@ class Proto(asyncio.DatagramProtocol):
 
 
 async def step(transport, proto):
-    transport.sendto(f"get_pos".encode())
-    
-    return 1
+    ch = input()
+    if ch == "start":
+        transport.sendto(f"start".encode())
+    if ch == "+w":
+        transport.sendto(f"+w".encode())
+    if ch == "-a":
+        transport.sendto(f"-a".encode())
+    if ch == "+s":
+        transport.sendto(f"+s".encode())
+    if ch == "+d":
+        transport.sendto(f"+d".encode())
+    s = pipe.readline()
+    if s != "":
+        print(s, end="")
 
 async def main():
+
+    global pipe
+    
     loop = asyncio.get_running_loop()
     transport, proto = await loop.create_datagram_endpoint(Proto, remote_addr=('127.0.0.1', '8787'))
 
@@ -36,3 +51,5 @@ async def main():
     transport.close()
 
 asyncio.run(main())
+
+pipe.close()

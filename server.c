@@ -14,13 +14,19 @@ uv_udp_t recv_socket;   //
 uv_udp_t send_socket;
 uv_timer_t game_tick;   //  тикрейт получения и отправки сообщений сервера (=engine_tick??)
 
+FILE* fp_in; // reading pipe
+FILE* fp_out; // writing pipe
+int NPlayers;
+
+char* POS;
+
 
 typedef struct _client_list {	//	односвязный список
     struct sockaddr_in addr;	//	адрес, откуда приходят пакеты
     uv_buf_t buf;				//	буфер содержит адрес получателя, отправителя, число бит и данные
-    struct _client_list* next;
+    int index;
+	struct _client_list* next;
 } client_t;
-
 
 typedef struct _game {		//	объект игры ( + uv_udp_t engine )
 	uv_udp_t server;
@@ -46,7 +52,9 @@ void add_client(const struct sockaddr* addr) {
 	printf("Adding client with port %d\n", client->addr.sin_port);		//
 	char* s = malloc(17);
 	printf("Client address: %s\n", get_ip_str(&client->addr, s, 17));	//
-	client->buf = uv_buf_init(malloc(1024), 1024);						//
+	client->buf = uv_buf_init(malloc(1024), 1024);	
+	client->index = NPlayers;											//	Номер клиента = номер управляемого объекта
+	NPlayers += 1;			
 	client->next = game.clients;										//
 	game.clients = client;												//
 }
@@ -69,19 +77,34 @@ void on_read(uv_udp_t* req, ssize_t nread, const uv_buf_t* buf,	const struct soc
 			add_client(addr);
 		
 		//	Обработка других команд или данных пользователя
-		} else if ( strncmp(buf->base, "get_pos", 7) == 0) {
-			send_pos();
-		} else if ( strncmp(buf->base, "update_pos", 10) == 0) {
-			//
-		} else if ( !strncmp(buf->base, "exit", 4) ) {
-			// remove_client(addr);
-		}
-	} else if ( nread == 0 ) {	//	получили пустой пакет
+		} else if ( strncmp(buf->base, "+w", 2) == 0) {
+			fprintf(fp_out, "SET VY %f\n", 1.0);
+		} else if ( strncmp(buf->base, "-w", 2) == 0) {
+			fprintf(fp_out, "SET VY %f\n", 0.0);
+		} else if ( strncmp(buf->base, "+a", 2) == 0) {
+			fprintf(fp_out, "SET VX %f\n", -1.0);
+		} else if ( strncmp(buf->base, "-a", 2) == 0) {
+			fprintf(fp_out, "SET VX %f\n", 0.0);
+		} else if ( strncmp(buf->base, "+s", 2) == 0) {
+			fprintf(fp_out, "SET VY %f\n", -1.0);
+		} else if ( strncmp(buf->base, "-s", 2) == 0) {
+			fprintf(fp_out, "SET VY %f\n", 0.0);
+		} else if ( strncmp(buf->base, "+d", 2) == 0) {
+			fprintf(fp_out, "SET VX %f\n", 1.0);
+		} else if ( strncmp(buf->base, "-d", 2) == 0) {
+			fprintf(fp_out, "SET VX %f\n", 0.0);
+		} else if ( strncmp(buf->base, "start", 5) == 0) {
+			start_engine();
+		} else if ( nread == 0 ) {	//	получили пустой пакет
 		//	printf("Empty data got\n");
-	} else {
-		printf("Error %s\n", uv_err_name(nread));
+		} else {
+			printf("Error %s\n", uv_err_name(nread));
+		}
+		fflush(fp_out);
+
+
+		free(buf->base);	//	необходимо самостоятельно очищать буфер
 	}
-	free(buf->base);	//	необходимо самостоятельно очищать буфер
 }
 
 
@@ -99,7 +122,16 @@ void on_send(uv_udp_send_t* req, int status) {
 /// @param timer - указатель на таймер, события которого обрабатываются
 
 void on_timer(uv_timer_t* timer){
-    //printf("Tick....\n"); 
+	fprintf(fp_out, "END\n");
+	POS = get_pos();
+	fprintf(fp_out, "BEG\n");
+	fflush(fp_out);
+}
+
+
+char* get_pos(){
+	fprintf(fp_out, "GET POS\n");
+	fflush(fp_out);
 }
 
 
@@ -129,11 +161,26 @@ int send_pos(){
     return 0;
 }
 
+int start_engine(){
+		char *data = "BEG";
+        fprintf(fp_out, "%s\n", data);
+        fflush(fp_out);
+}
 
 
 int main(){
+
+
     loop = uv_default_loop();		//	создание цикла
     struct sockaddr_in recv_addr;	//	инициализация ардеса получения пакетов
+
+	//fp_in = fopen("fp_eng_ser", "r");
+	fp_out = fopen("fp_ser_eng", "w");
+
+	POS = malloc(4096);
+	NPlayers = 0;
+	fprintf(fp_out, "BEG\n");
+    fflush(fp_out);
 
 	uv_udp_init(loop, &recv_socket);	//	привязка сокета к циклу
     uv_timer_init(loop, &game_tick);	//	привязка таймера к циклу
