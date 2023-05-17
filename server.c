@@ -17,6 +17,8 @@ uv_timer_t game_tick;   //  тикрейт получения и отправк�
 FILE* fp_in; // reading pipe
 FILE* fp_out; // writing pipe
 int NPlayers;
+double x, y;
+double vx, vy;
 
 char* POS;
 
@@ -78,31 +80,39 @@ void on_read(uv_udp_t* req, ssize_t nread, const uv_buf_t* buf,	const struct soc
 		
 		//	Обработка других команд или данных пользователя
 		} else if ( strncmp(buf->base, "+w", 2) == 0) {
-			fprintf(fp_out, "SET VY %f\n", 1.0);
+			//fprintf(fp_out, "SET VY %f\n", 1.0);
+			vy = 2;
 		} else if ( strncmp(buf->base, "-w", 2) == 0) {
-			fprintf(fp_out, "SET VY %f\n", 0.0);
+			//fprintf(fp_out, "SET VY %f\n", 0.0);
+			vy = 0;
 		} else if ( strncmp(buf->base, "+a", 2) == 0) {
-			fprintf(fp_out, "SET VX %f\n", -1.0);
+			//fprintf(fp_out, "SET VX %f\n", -1.0);
+			vx = -2;
 		} else if ( strncmp(buf->base, "-a", 2) == 0) {
-			fprintf(fp_out, "SET VX %f\n", 0.0);
+			//fprintf(fp_out, "SET VX %f\n", 0.0);
+			vx = 0;
 		} else if ( strncmp(buf->base, "+s", 2) == 0) {
-			fprintf(fp_out, "SET VY %f\n", -1.0);
+			//fprintf(fp_out, "SET VY %f\n", -1.0);
+			vy = -2;
 		} else if ( strncmp(buf->base, "-s", 2) == 0) {
-			fprintf(fp_out, "SET VY %f\n", 0.0);
+			//fprintf(fp_out, "SET VY %f\n", 0.0);
+			vy = 0;
 		} else if ( strncmp(buf->base, "+d", 2) == 0) {
-			fprintf(fp_out, "SET VX %f\n", 1.0);
+			//fprintf(fp_out, "SET VX %f\n", 1.0);
+			vx = 2;
 		} else if ( strncmp(buf->base, "-d", 2) == 0) {
-			fprintf(fp_out, "SET VX %f\n", 0.0);
+			//fprintf(fp_out, "SET VX %f\n", 0.0);
+			vx = 0;
 		} else if ( strncmp(buf->base, "start", 5) == 0) {
-			start_engine();
+			//start_engine();
 		} else if ( nread == 0 ) {	//	получили пустой пакет
 		//	printf("Empty data got\n");
 		} else {
-			printf("Error %s\n", uv_err_name(nread));
+			//printf("Error %s\n", uv_err_name(nread));
 		}
-		fflush(fp_out);
-
-
+		//fflush(fp_out);
+		
+		//send_pos();
 		free(buf->base);	//	необходимо самостоятельно очищать буфер
 	}
 }
@@ -122,16 +132,19 @@ void on_send(uv_udp_send_t* req, int status) {
 /// @param timer - указатель на таймер, события которого обрабатываются
 
 void on_timer(uv_timer_t* timer){
-	fprintf(fp_out, "END\n");
-	POS = get_pos();
-	fprintf(fp_out, "BEG\n");
-	fflush(fp_out);
+	x += vx;
+	y += vy;
+	send_pos();
+	//fprintf(fp_out, "END\n");
+	//POS = get_pos();
+	//fprintf(fp_out, "BEG\n");
+	//fflush(fp_out);
 }
 
 
 char* get_pos(){
-	fprintf(fp_out, "GET POS\n");
-	fflush(fp_out);
+	//fprintf(fp_out, "GET POS\n");
+	//fflush(fp_out);
 }
 
 
@@ -151,7 +164,7 @@ int send_pos(){
 		printf("Sending pos to client %s:%d\n", addr, client->addr.sin_port);
 		uv_udp_send_t* send_req = malloc(sizeof(uv_udp_send_t));
 		
-		client->buf.len = sprintf(client->buf.base, "hello");
+		client->buf.len = sprintf(client->buf.base, "%lf %lf", x, y);
 		printf("Buf: %s\n", client->buf.base);
 		int err = uv_udp_send(send_req, &recv_socket, &client->buf, 1, (const struct sockaddr*)&client->addr, on_send);
 		if ( err ) 
@@ -163,30 +176,31 @@ int send_pos(){
 
 int start_engine(){
 		char *data = "BEG";
-        fprintf(fp_out, "%s\n", data);
-        fflush(fp_out);
+        //fprintf(fp_out, "%s\n", data);
+        //fflush(fp_out);
 }
 
 
 int main(){
 
-
+	x = 0; y = 0;
+	vx = 0; vy = 0;
     loop = uv_default_loop();		//	создание цикла
     struct sockaddr_in recv_addr;	//	инициализация ардеса получения пакетов
 
 	//fp_in = fopen("fp_eng_ser", "r");
-	fp_out = fopen("fp_ser_eng", "w");
+	//fp_out = fopen("fp_ser_eng", "w");
 
 	POS = malloc(4096);
 	NPlayers = 0;
-	fprintf(fp_out, "BEG\n");
-    fflush(fp_out);
+	//fprintf(fp_out, "BEG\n");
+    //fflush(fp_out);
 
 	uv_udp_init(loop, &recv_socket);	//	привязка сокета к циклу
     uv_timer_init(loop, &game_tick);	//	привязка таймера к циклу
     uv_ip4_addr("127.0.0.1", 8787, &recv_addr);	//	задание адреса
     uv_udp_bind(&recv_socket, (const struct sockaddr*)&recv_addr, UV_UDP_REUSEADDR);	//	настройка UDP
-    uv_timer_start(&game_tick, on_timer, 100, 1000);
+    uv_timer_start(&game_tick, on_timer, 100, 15);
 	uv_udp_recv_start(&recv_socket, alloc_buffer, on_read);
 
 	printf("Server started\n");	
