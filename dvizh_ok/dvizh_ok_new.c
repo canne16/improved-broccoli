@@ -77,6 +77,12 @@ int add_circle(double r, double m, double x, double y, double vx, double vy)
     return circles_count;
 }
 
+int del_circle(int id)
+{
+    free(circles[id]);
+    circles[id] = NULL;
+}
+
 int add_section(double x1, double y1, double x2, double y2)
 {
     Section* section = calloc(1, sizeof(Section));
@@ -95,7 +101,7 @@ int add_section(double x1, double y1, double x2, double y2)
 int del_section(int id)
 {
     free(sections[id]);
-    sections[id] = 0;
+    sections[id] = NULL;
 }
 
 void step(double delta_max)

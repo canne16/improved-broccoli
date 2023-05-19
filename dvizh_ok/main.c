@@ -19,6 +19,7 @@ int main()
     FILE* f_i = fopen("./fp_ser_eng", "r");
     FILE* f_o = fopen("./fp_eng_ser", "w");
     char *s = calloc(sizeof(char), 256);
+    char cmd[16];
     printf("Starting!");
     fflush(stdin);
     while (1)
@@ -44,69 +45,63 @@ int main()
                 if (strcmp(s, "add") == 0)
                 {
                     int id;
-                    char c;
                     double val;
-                    fscanf(f_i, "%d %c %lf", &id, &c, &val);
+                    fscanf(f_i, "%d %s %lf", &id, cmd, &val);
                     if (id < 0 || id > circles_count)
                     {
                         continue;
                     }
-                    switch (c)
-                    {
-                    case 'x':
+
+                    if (strcmp(cmd, "x") == 0)
                         circles[id]->x += val;
-                        break;
-                    case 'y':
+                    if (strcmp(cmd, "y") == 0)
                         circles[id]->y += val;
-                        break;
-                    case 'X': // vx
-                        circles[id]->vx += val;
-                        break;
-                    case 'Y': // vy
-                        circles[id]->vy += val;
-                        break;
-                    case 'r':
+                    if (strcmp(cmd, "r") == 0)
                         circles[id]->r += val;
-                        break;
-                    case 'm':
+                    if (strcmp(cmd, "m") == 0)
                         circles[id]->m += val;
-                        break;
-                    default:
-                        break;
+                    if (strcmp(cmd, "vx") == 0)
+                        circles[id]->vx += val;
+                    if (strcmp(cmd, "vy") == 0)
+                        circles[id]->vy += val;
+                    if (strcmp(cmd, "v") == 0)
+                    {
+                        double old_abs = sqrt(circles[id]->vx * circles[id]->vx + circles[id]->vy * circles[id]->vy);
+                        circles[id]->vx /= old_abs;
+                        circles[id]->vy /= old_abs;
+                        circles[id]->vx *= (val + old_abs);
+                        circles[id]->vy *= (val + old_abs);
                     }
                 }
                 if (strcmp(s, "set") == 0)
                 {
                     int id;
-                    char c;
                     double val;
-                    fscanf(f_i, "%d %c %lf", &id, &c, &val);
+                    fscanf(f_i, "%d %s %lf", &id, cmd, &val);
                     if (id < 0 || id > circles_count)
                     {
                         continue;
                     }
-                    switch (c)
-                    {
-                    case 'x':
+
+                    if (strcmp(cmd, "x") == 0)
                         circles[id]->x = val;
-                        break;
-                    case 'y':
+                    if (strcmp(cmd, "y") == 0)
                         circles[id]->y = val;
-                        break;
-                    case 'X': // vx
-                        circles[id]->vx = val;
-                        break;
-                    case 'Y': // vy
-                        circles[id]->vy = val;
-                        break;
-                    case 'r':
+                    if (strcmp(cmd, "r") == 0)
                         circles[id]->r = val;
-                        break;
-                    case 'm':
+                    if (strcmp(cmd, "m") == 0)
                         circles[id]->m = val;
-                        break;
-                    default:
-                        break;
+                    if (strcmp(cmd, "vx") == 0)
+                        circles[id]->vx = val;
+                    if (strcmp(cmd, "vy") == 0)
+                        circles[id]->vy = val;
+                    if (strcmp(cmd, "v") == 0)
+                    {
+                        double old_abs = sqrt(circles[id]->vx * circles[id]->vx + circles[id]->vy * circles[id]->vy);
+                        circles[id]->vx /= old_abs;
+                        circles[id]->vy /= old_abs;
+                        circles[id]->vx *= val;
+                        circles[id]->vy *= val;
                     }
                 }
 
