@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import json
 import time
 import random
@@ -5,7 +6,6 @@ import asyncio
 import pygame
 
 
-pipe = open("fp_ser_eng", "r")
 global proto
 
 
@@ -86,11 +86,13 @@ class Proto(asyncio.DatagramProtocol):
 
     def datagram_received(self, data, addr):
         result = data.decode()
-        res_split = result.split()
+        print(result)
+        res_split = result.split(';')
         for i in range(len(res_split)):
-            res_split[i] = float(res_split[i])
-        circ1[0].center[0] = res_split[0]
-        circ1[0].center[1] = -res_split[1]
+            res_split[i] = res_split[i].split(' ')
+        
+        circ1[0].center[0] = float(res_split[1][3])
+        circ1[0].center[1] = -float(res_split[1][4])
         
 
 async def initialize(transport, proto):
