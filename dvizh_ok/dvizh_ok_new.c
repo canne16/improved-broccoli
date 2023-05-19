@@ -16,7 +16,7 @@
 const unsigned long long tick = 100; // tick duration in milliseconds
 
 unsigned int circles_size = 4;
-unsigned int polygons_size = 4;
+unsigned int sections_size = 4;
 struct timespec time_prev;
 
 typedef struct _Circle {
@@ -29,32 +29,36 @@ typedef struct _Circle {
     double vy;
 } Circle;
 
-typedef struct _Polygon {
+typedef struct _Section {
     unsigned int id;
-} Polygon;
+    double x1;
+    double y1;
+    double x2;
+    double y2;
+} Section;
 
 
-Circle** circles = NULL;
-Polygon** polygons = NULL;
+Circle** circles;
+Section** sections;
 unsigned int circles_count = 0;
-unsigned int polygons_count = 0;
+unsigned int sections_count = 0;
 
-double border_x_min = -INFINITY, border_y_min = -INFINITY, border_x_max = INFINITY, border_y_max = INFINITY;
+//double border_x_min = -INFINITY, border_y_min = -INFINITY, border_x_max = INFINITY, border_y_max = INFINITY;
 
 int init()
 {
     circles = calloc(circles_size, sizeof(Circle*));
-    polygons = calloc(polygons_size, sizeof(Polygon*));
+    sections = calloc(sections_size, sizeof(Section*));
     return 0;
 }
 
-void set_borders(double x1, double y1, double x2, double y2)
+/*void set_borders(double x1, double y1, double x2, double y2)
 {
     border_x_min = x1;
     border_y_min = y1;
     border_x_max = x2;
     border_y_max = y2;
-}
+}*/
 
 // Returns id of new circle
 // Rewrite to optimize memory: scan for null_ptrs
@@ -73,10 +77,25 @@ int add_circle(double r, double m, double x, double y, double vx, double vy)
     return circles_count;
 }
 
-int del_circle(int id)
+int add_section(double x1, double y1, double x2, double y2)
 {
-    free(circles[id]);
-    circles[id] = 0;
+    Section* section = calloc(1, sizeof(Section));
+    *section = (Section){sections_count, x1, y1, x2, y2};
+
+    if (sections_size == sections_count + 1)
+    {
+        sections_size *= 2;
+        sections = realloc(sections, sizeof(Circle*) * sections_size);
+    }
+
+    sections[sections_count++] = section;
+    return sections_count;
+}
+
+int del_section(int id)
+{
+    free(sections[id]);
+    sections[id] = 0;
 }
 
 void step(double delta_max)
@@ -86,6 +105,7 @@ void step(double delta_max)
 
     double dt_min = delta_max, dt = delta_max;
     int i_min = -1, j_min = -1;
+    int type = -1; // -1 - undefined, 1 - circles+circles, 2 - circle+section, 3 - circle+section_end1, 4-circle+section_end2
 
     //printf("Finding \"nearest\" circles\n");
 
@@ -122,41 +142,46 @@ void step(double delta_max)
                 dt_min = dt;
                 i_min = i;
                 j_min = j;
+                type = 1;
             }
         }
-
-        dt = (border_x_min - circles[i]->x + circles[i]->r) / circles[i]->vx;
-        if (dt >= 0 && dt_min > dt && circles[i]->vx < 0)
+    }
+    
+    for (int i = 0; i < circles_count; i++)
+    {
+        if (circles[i] == NULL)
+            continue;
+        for (int j = i + 1; j < sections_count; j++)
         {
-            dt_min = dt;
-            i_min = i;
-            j_min = BORDER_XMIN;
-        }
+            if (sections[j] == NULL)
+                continue;
 
-        dt = (border_y_min - circles[i]->y + circles[i]->r) / circles[i]->vy;
-        if (dt >= 0 && dt_min > dt && circles[i]->vy < 0)
-        {
-            dt_min = dt;
-            i_min = i;
-            j_min = BORDER_YMIN;
-        }
+            double nx = (sections[j]->y1 - sections[j]->y2);
+            double ny = (sections[j]->x1 - sections[j]->x2);
+            double l = sqrt(nx * nx + ny * ny);
+            nx /= l;
+            ny /= l;
 
-        dt = (border_x_max - circles[i]->x - circles[i]->r) / circles[i]->vx;
-        if (dt >= 0 && dt_min > dt && circles[i]->vx > 0)
-        {
-            dt_min = dt;
-            i_min = i;
-            j_min = BORDER_XMAX;
-        }
+            double d = abs((circles[i]->x - sections[j]->x1) * nx + (circles[i]->y - sections[j]->y1) * ny);
+            if (circles[i]->r >= d)
+            {
+                d -= circles[i]->r;
+                dt = d / (circles[i]->vx * nx + circles[i]->vy * ny);
 
-        dt = (border_y_max - circles[i]->y - circles[i]->r) / circles[i]->vy;
-        if (dt >= 0 && dt_min > dt && circles[i]->vy > 0)
-        {
-            dt_min = dt;
-            i_min = i;
-            j_min = BORDER_YMAX;
+                /// Not implemented yet! Warning! Dangerous!
+
+                if (dt_min > dt)
+                {
+                    dt_min = dt;
+                    i_min = i;
+                    j_min = j;
+                    type = 2;
+                }
+            }
         }
     }
+
+
 
     //printf("dt_min: %lf\n", dt_min);
 
@@ -179,7 +204,7 @@ void step(double delta_max)
     //printf("Step 1\n");
     //fflush(stdin);
 
-    switch (j_min)
+    /*switch (j_min)
     {
     case BORDER_XMIN:
     case BORDER_XMAX:
@@ -190,54 +215,52 @@ void step(double delta_max)
         circles[i_min]->vy *= -1;
         break;
     default:
-        double r = circles[i_min]->r + circles[j_min]->r;
-        double sin_phi = (circles[j_min]->y - circles[i_min]->y) / r;
-        double cos_phi = (circles[j_min]->x - circles[i_min]->x) / r;
+    }*/
+    double r = circles[i_min]->r + circles[j_min]->r;
+    double sin_phi = (circles[j_min]->y - circles[i_min]->y) / r;
+    double cos_phi = (circles[j_min]->x - circles[i_min]->x) / r;
 
-        double vn1 = circles[i_min]->vx * cos_phi + circles[i_min]->vy * sin_phi;
-        double vn2 = circles[j_min]->vx * cos_phi + circles[j_min]->vy * sin_phi;
+    double vn1 = circles[i_min]->vx * cos_phi + circles[i_min]->vy * sin_phi;
+    double vn2 = circles[j_min]->vx * cos_phi + circles[j_min]->vy * sin_phi;
 
-        double vt1 = circles[i_min]->vy * cos_phi - circles[i_min]->vx * sin_phi;
-        double vt2 = circles[j_min]->vy * cos_phi - circles[j_min]->vx * sin_phi;
+    double vt1 = circles[i_min]->vy * cos_phi - circles[i_min]->vx * sin_phi;
+    double vt2 = circles[j_min]->vy * cos_phi - circles[j_min]->vx * sin_phi;
 
-        double m1 = circles[i_min]->m;
-        double m2 = circles[j_min]->m;
+    double m1 = circles[i_min]->m;
+    double m2 = circles[j_min]->m;
         
-        //printf("Step 2.1\n");
-        //fflush(stdin);
+    //printf("Step 2.1\n");
+    //fflush(stdin);
 
-        double a, b, c; // ax^2 + 2bx + c = 0
-        a = m1 + m2;
-        b = -(m1 * vn1 + m2 * vn2);
-        c = vn1 * vn1 * (m1 - m2) + 2 * vn1 * vn2 * m2;
+    double a, b, c; // ax^2 + 2bx + c = 0
+    a = m1 + m2;
+    b = -(m1 * vn1 + m2 * vn2);
+    c = vn1 * vn1 * (m1 - m2) + 2 * vn1 * vn2 * m2;
 
-        //printf("Step 2.2\n");
-        //fflush(stdin);
+    //printf("Step 2.2\n");
+    //fflush(stdin);
 
-        double vn1_new = (-b - sqrt(b * b - a * c)) / a;
+    double vn1_new = (-b - sqrt(b * b - a * c)) / a;
         
-        //printf("Step 3.1\n");
-        //fflush(stdin);
+    //printf("Step 3.1\n");
+    //fflush(stdin);
 
-        a = m1 + m2;
-        b = -(m1 * vn1 + m2 * vn2);
-        c = vn2 * vn2 * (m2 - m1) + 2 * vn1 * vn2 * m1;
+    a = m1 + m2;
+    b = -(m1 * vn1 + m2 * vn2);
+    c = vn2 * vn2 * (m2 - m1) + 2 * vn1 * vn2 * m1;
 
-        //printf("Step 3.2\n");
-        //fflush(stdin);
+    //printf("Step 3.2\n");
+    //fflush(stdin);
 
-        double vn2_new = (-b + sqrt(b * b - a * c)) / a;
+    double vn2_new = (-b + sqrt(b * b - a * c)) / a;
         
-        //printf("Step 4\n");
-        //fflush(stdin);
+    //printf("Step 4\n");
+    //fflush(stdin);
 
-        circles[i_min]->vx = vn1_new * cos_phi - vt1 * sin_phi;
-        circles[i_min]->vy = vn1_new * sin_phi + vt1 * cos_phi;
-        circles[j_min]->vx = vn2_new * cos_phi - vt2 * sin_phi;
-        circles[j_min]->vy = vn2_new * sin_phi + vt2 * cos_phi;
-        break;
-    }
-
+    circles[i_min]->vx = vn1_new * cos_phi - vt1 * sin_phi;
+    circles[i_min]->vy = vn1_new * sin_phi + vt1 * cos_phi;
+    circles[j_min]->vx = vn2_new * cos_phi - vt2 * sin_phi;
+    circles[j_min]->vy = vn2_new * sin_phi + vt2 * cos_phi;
 
     step(delta_max - dt_min);
 }
