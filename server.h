@@ -1,5 +1,5 @@
 int start_engine();
-char* get_pos();
+void get_pos();
 
 char *get_ip_str(const struct sockaddr_in *sa, char *s, size_t maxlen){ // uv_ip_name
     switch(sa->sin_family) {

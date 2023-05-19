@@ -1,6 +1,9 @@
-#!/usr/bin/python3
+#!venv/bin/python3
 import asyncio
 from random import randint
+from time import sleep
+
+n = 0
 
 class Circle:
     def __init__(self, x, y, r, vx, vy):
@@ -23,6 +26,7 @@ class PingPongProtocol(asyncio.Protocol):
 
     def datagram_received(self, data, address):
         global circles
+        global n
         msg = data.decode()
         print(f"recieved: {msg}")
         words = msg.split()
@@ -35,7 +39,8 @@ class PingPongProtocol(asyncio.Protocol):
             for circle in circles:
                 if (circle != circles[0]):
                     answer += ", "
-                answer += "{" + f"x: {circle.x}, y: {circle.y}, r: {circle.r}, vx: {circle.vx}, vy: {circle.vy}" + "}"
+                answer += "{" + f"x: {circle.x}, y: {circle.y}, r: {circle.r}, vx: {circle.vx}, vy: {circle.vy}" + ", requests: " + str(n)
+                n += 1
             answer += "], polygons: []}"
             print(answer)
 
