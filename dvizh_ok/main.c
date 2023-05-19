@@ -81,7 +81,7 @@ int main()
             }
             step(TICK);
             fprintf(f_o, "%d\n", circles_count + circles_size + 2);
-            fprintf(f_o, "circles %d\n", circles_count);
+            fprintf(f_o, "circles %d;", circles_count);
             for (int i = 0; i < circles_count; i++)
             {
                 /*
@@ -93,13 +93,13 @@ int main()
                 double vx;
                 double vy;
                 */
-                fprintf(f_o, "%d %lf %lf %lf %lf %lf %lf\n", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
+                fprintf(f_o, "%d %lf %lf %lf %lf %lf %lf;", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
             }
-            fprintf(f_o, "sections 4\n");
-            fprintf(f_o, "0 0 0 1920 0\n");
-            fprintf(f_o, "1 0 0 0 1080\n");
-            fprintf(f_o, "2 1920 0 1920 1080\n");
-            fprintf(f_o, "3 0 1080 1820 1080\n");
+            fprintf(f_o, "sections 4;");
+            fprintf(f_o, "0 0 0 1920 0;");
+            fprintf(f_o, "1 0 0 0 1080;");
+            fprintf(f_o, "2 1920 0 1920 1080;");
+            fprintf(f_o, "3 0 1080 1820 1080;");
         }
     }
     fclose(f_i);
