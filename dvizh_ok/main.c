@@ -16,19 +16,19 @@ void initial_pos() {
 
 int main()
 {
-    FILE* f_i = fopen("fp_ser_eng", "r");
-    FILE* f_o = fopen("fp_eng_ser", "w");
+    FILE* f_i = fopen("./fp_ser_eng", "r");
+    FILE* f_o = fopen("./fp_eng_ser", "w");
     char *s = calloc(sizeof(char), 256);
-    printf("akdjhsagfhg");
+    printf("Starting!");
     fflush(stdin);
     while (1)
     {
         fscanf(f_i, "%s", s);
-        //printf("%s", s);
         if (strcmp(s, "init") == 0)
         {
             free_all();
             init();
+            initial_pos();
             continue;
         }
         if (strcmp(s, "exit") == 0)
@@ -39,7 +39,7 @@ int main()
         {
             fscanf(f_i, "%s", s);
 
-            while (strcmp(s, "end") == 0)
+            while (strcmp(s, "end") != 0)
             {
                 if (strcmp(s, "add") == 0)
                 {
@@ -81,7 +81,7 @@ int main()
             }
             step(TICK);
             fprintf(f_o, "%d\n", circles_count + circles_size + 2);
-            fprintf(f_o, "circles %d;", circles_count);
+            //fprintf(f_o, "circles %d;", circles_count);
             for (int i = 0; i < circles_count; i++)
             {
                 /*
@@ -93,13 +93,15 @@ int main()
                 double vx;
                 double vy;
                 */
-                fprintf(f_o, "%d %lf %lf %lf %lf %lf %lf;", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
+                fprintf(f_o, "%d %lf %lf %lf %lf %lf %lf,", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
             }
-            fprintf(f_o, "sections 4;");
-            fprintf(f_o, "0 0 0 1920 0;");
-            fprintf(f_o, "1 0 0 0 1080;");
-            fprintf(f_o, "2 1920 0 1920 1080;");
-            fprintf(f_o, "3 0 1080 1820 1080;");
+            fprintf(f_o, ";");
+            fprintf(f_o, "0 0 0 1920 0,");
+            fprintf(f_o, "1 0 0 0 1080,");
+            fprintf(f_o, "2 1920 0 1920 1080,");
+            fprintf(f_o, "3 0 1080 1820 1080,");
+            fprintf(f_o, "\n");
+            fflush(f_o);
         }
     }
     fclose(f_i);
