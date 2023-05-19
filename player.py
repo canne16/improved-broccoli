@@ -1,0 +1,138 @@
+#!/usr/bin/python3
+import json
+import time
+import random
+import asyncio
+import pygame
+
+
+global proto
+
+
+FLAG = False
+
+##########################################################################
+WIDTH = 1000  # ширина игрового окна
+HEIGHT = 500 # высота игрового окна
+FPS = 30 # частота кадров в секунду
+
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+##########################################################################
+
+# создаем игру и окно
+pygame.init()
+pygame.mixer.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Game on")
+clock = pygame.time.Clock()
+Data = []
+###########################################################################
+
+
+ScrnClr = GREEN
+        
+
+class figure:  
+    """Базовый класс для всех фигур"""  
+    FigCount = 0
+
+    def __init__(self, type, center, R, clr, mass, v):  
+        self.type = 0
+        self.center = [0,0]
+        self.R = 100
+        self.clr = BLUE
+        self.mass = 1
+        self.v = [0,0]
+        figure.FigCount += 1  
+
+    def draw(self, screen):
+
+        if self.type == 0:
+            pygame.draw.circle(screen, self.clr, centCO(self.center), self.R)
+
+
+circ1 = [figure(0, [0,0], 100, WHITE, 1, [10,10]) for i in range(1)] # как не прописывать всю строку?
+
+
+
+def centCO(XY):
+    XY1 = [0]*2
+    XY1[0] = XY[0] + WIDTH/2
+    XY1[1] = XY[1] + HEIGHT/2
+    return XY1
+
+
+
+async def draw():
+
+    screen.fill(ScrnClr)
+    for i in range(len(circ1)):
+        circ1[i].draw(screen)
+    pygame.display.flip()
+
+
+class Proto(asyncio.DatagramProtocol):
+    def __init__(self):
+        pass
+    
+
+    def connection_made(self, transport):
+        self.transport = transport
+        transport.sendto(f"initial".encode())
+
+    def datagram_received(self, data, addr):
+        result = data.decode()
+        print(result)
+        res_split = result.split(';')
+        for i in range(len(res_split)):
+            res_split[i] = res_split[i].split(' ')
+        
+        circ1[0].center[0] = float(res_split[1][3])
+        circ1[0].center[1] = -float(res_split[1][4])
+        
+
+async def initialize(transport, proto):
+    transport
+    return 1
+
+
+async def step(transport, proto):
+    transport.sendto(f"get_pos".encode())
+    
+    return 1
+
+async def initialize(transport, proto):
+    return 1
+
+async def main():
+
+    global pipe
+    global FINISHED
+    
+    loop = asyncio.get_running_loop()
+    transport, proto = await loop.create_datagram_endpoint(Proto,remote_addr=('127.0.0.1', 8787))
+    await initialize(transport,proto)
+    FINISHED = False
+  
+    while not FINISHED:
+        clock.tick(FPS)
+        await draw()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                FINISHED = True
+            if event.type == pygame.KEYDOWN:
+                transport.sendto(f"+{chr(event.key)}".encode())
+            if event.type == pygame.KEYUP:
+                transport.sendto(f"-{chr(event.key)}".encode())
+
+        await asyncio.sleep(0.015)
+    transport.close()
+
+    transport.close()
+    pygame.quit()
+
+asyncio.run(main())
