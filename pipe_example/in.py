@@ -1,6 +1,7 @@
 #!/bin/python3
+import sys
 
-with open("pipe", "w") as pipe:
+with open(sys.argv[1], "w") as pipe:
     print("Starting!")
     while True:
         pipe.write(input() + "\n")

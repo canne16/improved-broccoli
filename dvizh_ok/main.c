@@ -75,24 +75,47 @@ int main()
                         break;
                     }
                 }
-
+                if (strcmp(s, "set") == 0)
+                {
+                    int id;
+                    char c;
+                    double val;
+                    fscanf(f_i, "%d %c %lf", &id, &c, &val);
+                    if (id < 0 || id > circles_count)
+                    {
+                        continue;
+                    }
+                    switch (c)
+                    {
+                    case 'x':
+                        circles[id]->x = val;
+                        break;
+                    case 'y':
+                        circles[id]->y = val;
+                        break;
+                    case 'X': // vx
+                        circles[id]->vx = val;
+                        break;
+                    case 'Y': // vy
+                        circles[id]->vy = val;
+                        break;
+                    case 'r':
+                        circles[id]->r = val;
+                        break;
+                    case 'm':
+                        circles[id]->m = val;
+                        break;
+                    default:
+                        break;
+                    }
+                }
 
                 fscanf(f_i, "%s", s);
             }
             step(TICK);
             fprintf(f_o, "%d\n", circles_count + circles_size + 2);
-            //fprintf(f_o, "circles %d;", circles_count);
             for (int i = 0; i < circles_count; i++)
             {
-                /*
-                unsigned int id;
-                double r;
-                double m;
-                double x;
-                double y;
-                double vx;
-                double vy;
-                */
                 fprintf(f_o, "%d %lf %lf %lf %lf %lf %lf,", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
             }
             fprintf(f_o, ";");
