@@ -132,6 +132,14 @@ void on_send(uv_udp_send_t* req, int status) {
 /// @param timer - указатель на таймер, события которого обрабатываются
 
 void on_timer(uv_timer_t* timer){
+<<<<<<< HEAD
+	fprintf(fp_out, "END\n");
+	fprintf(fp_out, "BEG\n");
+	POS = get_pos();
+	send_pos(POS);
+	fprintf(fp_out, "add 0 x -1\n");
+	fflush(fp_out);
+=======
 	x += vx;
 	y += vy;
 	send_pos();
@@ -139,12 +147,18 @@ void on_timer(uv_timer_t* timer){
 	//POS = get_pos();
 	//fprintf(fp_out, "BEG\n");
 	//fflush(fp_out);
+>>>>>>> 31c55dc9ba2aeecb7a9b4c066ea759bb0b549e3b
 }
 
 
 char* get_pos(){
+<<<<<<< HEAD
+	fscanf(fp_in,"%s\n", POS);
+	fflush(fp_in);
+=======
 	//fprintf(fp_out, "GET POS\n");
 	//fflush(fp_out);
+>>>>>>> 31c55dc9ba2aeecb7a9b4c066ea759bb0b549e3b
 }
 
 
@@ -164,7 +178,11 @@ int send_pos(){
 		printf("Sending pos to client %s:%d\n", addr, client->addr.sin_port);
 		uv_udp_send_t* send_req = malloc(sizeof(uv_udp_send_t));
 		
+<<<<<<< HEAD
+		client->buf.len = sprintf(client->buf.base, "%s", POS);
+=======
 		client->buf.len = sprintf(client->buf.base, "%lf %lf", x, y);
+>>>>>>> 31c55dc9ba2aeecb7a9b4c066ea759bb0b549e3b
 		printf("Buf: %s\n", client->buf.base);
 		int err = uv_udp_send(send_req, &recv_socket, &client->buf, 1, (const struct sockaddr*)&client->addr, on_send);
 		if ( err ) 
@@ -175,14 +193,31 @@ int send_pos(){
 }
 
 int start_engine(){
+<<<<<<< HEAD
+		char *data = "INITIAL BEGIN START WHATEVER";
+        fprintf(fp_out, "%s\n", data);
+        fflush(fp_out);
+=======
 		char *data = "BEG";
         //fprintf(fp_out, "%s\n", data);
         //fflush(fp_out);
+>>>>>>> 31c55dc9ba2aeecb7a9b4c066ea759bb0b549e3b
 }
 
 
 int main(){
 
+<<<<<<< HEAD
+    loop = uv_default_loop();		//	создание цикла
+    struct sockaddr_in recv_addr;	//	инициализация ардеса получения пакетов
+
+	fp_in = fopen("fp_eng_ser", "r");
+	fp_out = fopen("fp_ser_eng", "w");
+
+	POS = malloc(4096);
+	NPlayers = 0;
+	start_engine();
+=======
 	x = 0; y = 0;
 	vx = 0; vy = 0;
     loop = uv_default_loop();		//	создание цикла
@@ -195,10 +230,11 @@ int main(){
 	NPlayers = 0;
 	//fprintf(fp_out, "BEG\n");
     //fflush(fp_out);
+>>>>>>> 31c55dc9ba2aeecb7a9b4c066ea759bb0b549e3b
 
 	uv_udp_init(loop, &recv_socket);	//	привязка сокета к циклу
     uv_timer_init(loop, &game_tick);	//	привязка таймера к циклу
-    uv_ip4_addr("127.0.0.1", 8787, &recv_addr);	//	задание адреса
+    uv_ip4_addr("192.168.0.106", 8787, &recv_addr);	//	задание адреса
     uv_udp_bind(&recv_socket, (const struct sockaddr*)&recv_addr, UV_UDP_REUSEADDR);	//	настройка UDP
     uv_timer_start(&game_tick, on_timer, 100, 15);
 	uv_udp_recv_start(&recv_socket, alloc_buffer, on_read);
