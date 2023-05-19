@@ -1,6 +1,7 @@
 #!/bin/python3
+import sys
 
-with open("pipe", "r") as pipe:
+with open(sys.argv[1], "r") as pipe:
     print("Starting!")
     while True:
         s = pipe.readline()
