@@ -1,4 +1,7 @@
-int start_engine();
+
+void interpret(int,char*);
+void start_engine();
+int send_pos();
 void get_pos();
 
 char *get_ip_str(const struct sockaddr_in *sa, char *s, size_t maxlen){ // uv_ip_name

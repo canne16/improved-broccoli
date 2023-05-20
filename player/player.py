@@ -46,8 +46,8 @@ class figure:
         self.R = 100
         self.clr = BLUE
         self.mass = 1
-        self.v = [0,0]
-        figure.FigCount += 1  
+        self.vorx1y1 = [0,0]
+        figure.FigCount += 1
 
     def draw(self, screen):
 
@@ -56,6 +56,7 @@ class figure:
 
 
 circ1 = [figure(0, [0,0], 100, WHITE, 1, [10,10]) for i in range(1)] # как не прописывать всю строку?
+sect1 = [figure(1, [0,0], 100, WHITE, 1, [10,10]) for i in range(1)]
 
 
 
@@ -85,14 +86,36 @@ class Proto(asyncio.DatagramProtocol):
         transport.sendto(f"initial".encode())
 
     def datagram_received(self, data, addr):
-        result = data.decode()
-        print(result)
-        res_split = result.split(';')
+        S = str.split(';')
+
+        for s in range(len(S)):
+            f = S[s].split(",")
+            for i in range(len(f) - 1):
+                fig = list(map(float, f[i].split()))
+                if s == 0:
+                    while fig[0] + 2 > len(circ1):
+                        circ1.append(figure(0, [0,0], 100, WHITE, 1, [10,10]))
+
+                    circ1[fig[0]].R = fig[1]
+                    circ1[fig[0]].mass = fig[2]
+                    circ1[fig[0]].center = [fig[3],fig[4]]
+                    circ1[fig[0]].vorx1y1 = [fig[5],fig[6]]
+                elif s == 1:
+                    while fig[0] + 2 > len(circ1):
+                        sect1.append(figure(1, [0,0], 100, WHITE, 1, [10,10]))
+
+                    sect1[fig[0]].center = [fig[1],fig[2]]
+                    sect1[fig[0]].vorx1y1 = [fig[3],fig[4]]
+                    
+
+
+                
+        """res_map[0]
+        res_split = result.split()
         for i in range(len(res_split)):
-            res_split[i] = res_split[i].split(' ')
-        
-        circ1[0].center[0] = float(res_split[1][3])
-        circ1[0].center[1] = -float(res_split[1][4])
+            res_split[i] = float(res_split[i])
+        circ1[0].center[0] = res_split[0]
+        circ1[0].center[1] = -res_split[1]"""
         
 
 async def initialize(transport, proto):
