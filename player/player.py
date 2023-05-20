@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/python3
 import json
 import time
 import random
@@ -46,8 +46,8 @@ class figure:
         self.R = 100
         self.clr = BLUE
         self.mass = 1
-        self.v = [0,0]
-        figure.FigCount += 1  
+        self.vorx1y1 = [0,0]
+        figure.FigCount += 1
 
     def draw(self, screen):
 
@@ -56,6 +56,7 @@ class figure:
 
 
 circ1 = [figure(0, [0,0], 100, WHITE, 1, [10,10]) for i in range(1)] # как не прописывать всю строку?
+sect1 = [figure(1, [0,0], 100, WHITE, 1, [10,10]) for i in range(1)]
 
 
 
@@ -98,15 +99,13 @@ class Proto(asyncio.DatagramProtocol):
                     circ1[fig[0]].R = fig[1]
                     circ1[fig[0]].mass = fig[2]
                     circ1[fig[0]].center = [fig[3],fig[4]]
-                    circ1[fig[0]].v = [fig[5],fig[6]]
-                """elif s == 1:
+                    circ1[fig[0]].vorx1y1 = [fig[5],fig[6]]
+                elif s == 1:
                     while fig[0] + 2 > len(circ1):
-                        sect1.append(figure(0, [0,0], 100, WHITE, 1, [10,10]))
+                        sect1.append(figure(1, [0,0], 100, WHITE, 1, [10,10]))
 
-                    sect1[fig[0]].R = fig[1]
-                    sect1[fig[0]].mass = fig[2]
-                    sec1[fig[0]].center = [fig[3],fig[4]]
-                    sect1[fig[0]].v = [fig[5],fig[6]]"""
+                    sect1[fig[0]].center = [fig[1],fig[2]]
+                    sect1[fig[0]].vorx1y1 = [fig[3],fig[4]]
                     
 
 
