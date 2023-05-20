@@ -16,8 +16,8 @@ void initial_pos() {
 
 int main()
 {
-    FILE* f_i = fopen("./fp_ser_eng", "r");
-    FILE* f_o = fopen("./fp_eng_ser", "w");
+    FILE* f_i = fopen("fp_ser_eng", "r");
+    FILE* f_o = fopen("fp_eng_ser", "w");
     char *s = calloc(sizeof(char), 256);
     char cmd[16];
     printf("Starting!");
@@ -39,10 +39,11 @@ int main()
         if (strcmp(s, "begin") == 0)
         {
             fscanf(f_i, "%s", s);
+            //printf("BEGIN\n");
 
             while (strcmp(s, "end") != 0)
             {
-                if (strcmp(s, "add") == 0)
+                if (strcmp(s, "ADD") == 0)
                 {
                     int id;
                     double val;
@@ -108,7 +109,6 @@ int main()
                 fscanf(f_i, "%s", s);
             }
             step(TICK);
-            fprintf(f_o, "%d\n", circles_count + circles_size + 2);
             for (int i = 0; i < circles_count; i++)
             {
                 fprintf(f_o, "%d %lf %lf %lf %lf %lf %lf,", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
@@ -120,6 +120,7 @@ int main()
             fprintf(f_o, "3 0 1080 1820 1080,");
             fprintf(f_o, "\n");
             fflush(f_o);
+            //printf("END\n");
         }
     }
     fclose(f_i);
