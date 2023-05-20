@@ -9,7 +9,7 @@
 
 
 #define STR_BUFFER 256
-#define TICK 200
+#define TICK 1
 #define DELAY 1000
 
 
@@ -67,6 +67,24 @@ void add_client(const struct sockaddr* addr) {
 }
 
 
+void remove_client(const struct sockaddr* addr) {
+	client_t* client;
+	client_t* prev;
+	NPlayers--;
+	for ( client = game.clients, prev=NULL; client; prev=client, client=client->next) {
+		if (!memcmp(&client->addr, addr, sizeof(struct sockaddr_in)) ) {
+			printf("Client %d to be removed\n", client->index);
+			fflush(stdout);
+			if ( prev ) prev->next =client->next;
+			else game.clients = client->next;
+			free(client->buf.base);
+			free(client);
+			break;
+		}
+	}
+}
+
+
 /// @brief обработчик получения пакета
 /// @param req UDP request handle. Need not be initialized
 /// @param nread число полученных байт
@@ -78,9 +96,20 @@ void on_read(uv_udp_t* req, ssize_t nread, const uv_buf_t* buf,	const struct soc
 	if ( nread > 0 ) {	//	если при получении не было ошибок и пакет не пустой
 		int index = 0;
 		printf("data got: %s\n", buf->base);	//	buf->base == содержимое пакета без адреса и прочего
+		fflush(stdout);
 		if (strncmp(buf->base, "initial", 7) == 0) {	//	команда NEW == запрос на подключение к игре
 			printf("Adding new client\n");
+			fflush(stdout);
 			add_client(addr);
+		} else if (strncmp(buf->base, "quit", 4) == 0) {	//	команда NEW == запрос на подключение к игре
+			remove_client(addr);
+			if (!NPlayers){
+				printf("Finished.\n");
+				fflush(stdout);
+				lua_close(Lua);
+				fprintf(fp_out, "exit\n");
+				fflush(stdout);
+			}
 		} else {
 			client_t* client; 
 			for( client = game.clients; client; client = client->next)
@@ -191,10 +220,7 @@ int main(){
 	uv_udp_recv_start(&recv_socket, alloc_buffer, on_read);
 
 	printf("Server started\n");	
-	return uv_run(loop, UV_RUN_DEFAULT);
-
-	fprintf(fp_out, "end\nexit\n");
-	fclose(fp_in);
-	fclose(fp_out);
-	lua_close(Lua);
+	uv_run(loop, UV_RUN_DEFAULT);
+	
+	return 1;
 }

@@ -4,6 +4,7 @@ import time
 import random
 import asyncio
 import pygame
+import numpy as np
 
 
 global proto
@@ -12,9 +13,9 @@ global proto
 FLAG = False
 
 ##########################################################################
-WIDTH = 1000  # ширина игрового окна
-HEIGHT = 500 # высота игрового окна
-FPS = 30 # частота кадров в секунду
+WIDTH = 1920  # ширина игрового окна
+HEIGHT = 1080 # высота игрового окна
+FPS = 75 # частота кадров в секунду
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -27,14 +28,14 @@ BLUE = (0, 0, 255)
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Game on")
+pygame.display.set_caption("Game on!")
 clock = pygame.time.Clock()
 Data = []
+KeyList = "wasdop"
 ###########################################################################
 
 
-ScrnClr = GREEN
-        
+ScrnClr = WHITE
 
 class figure:  
     """Базовый класс для всех фигур"""  
@@ -43,8 +44,8 @@ class figure:
     def __init__(self, type, center, R, clr, mass, v):  
         self.type = 0
         self.center = [0,0]
-        self.R = 100
-        self.clr = BLUE
+        self.R = 10
+        self.clr = list(np.random.choice(range(256), size=3))
         self.mass = 1
         self.vorx1y1 = [0,0]
         figure.FigCount += 1
@@ -58,8 +59,8 @@ class figure:
             pygame.draw.line(screen, self.clr, centCO(self.center), centCO(self.vorx1y1))
 
 
-circ1 = [figure(0, [0,0], 100, WHITE, 1, [10,10]) for i in range(1)] # как не прописывать всю строку?
-sect1 = [figure(1, [0,0], 100, WHITE, 1, [10,10]) for i in range(1)]
+circ1 = [] # как не прописывать всю строку?
+sect1 = []
 
 
 
@@ -72,10 +73,9 @@ def centCO(XY):
 
 
 async def draw():
-
     screen.fill(ScrnClr)
-    for i in range(len(circ1)):
-        circ1[i].draw(screen)
+    for circle in circ1:
+        circle.draw(screen)
     pygame.display.flip()
 
 
@@ -89,37 +89,27 @@ class Proto(asyncio.DatagramProtocol):
         transport.sendto(f"initial".encode())
 
     def datagram_received(self, data, addr):
-        S = str.split(';')
-
+        result = data.decode()
+        S = result.split(';')
         for s in range(len(S)):
             f = S[s].split(",")
             for i in range(len(f) - 1):
                 fig = list(map(float, f[i].split()))
                 if s == 0:
-                    while fig[0] + 2 > len(circ1):
+                    while fig[0] + 1 > len(circ1):
                         circ1.append(figure(0, [0,0], 100, WHITE, 1, [10,10]))
 
-                    circ1[fig[0]].R = fig[1]
-                    circ1[fig[0]].mass = fig[2]
-                    circ1[fig[0]].center = [fig[3],fig[4]]
-                    circ1[fig[0]].vorx1y1 = [fig[5],fig[6]]
+                    circ1[int(fig[0])].R = fig[1]
+                    circ1[int(fig[0])].mass = fig[2]
+                    circ1[int(fig[0])].center = [fig[3],fig[4]]
+                    circ1[int(fig[0])].vorx1y1 = [fig[5],fig[6]]
                 elif s == 1:
-                    while fig[0] + 2 > len(circ1):
+                    while fig[0] + 1 > len(sect1):
                         sect1.append(figure(1, [0,0], 100, WHITE, 1, [10,10]))
 
-                    sect1[fig[0]].center = [fig[1],fig[2]]
-                    sect1[fig[0]].vorx1y1 = [fig[3],fig[4]]
+                    sect1[int(fig[0])].center = [fig[1],fig[2]]
+                    sect1[int(fig[0])].vorx1y1 = [fig[3],fig[4]]
                     
-
-
-                
-        """res_map[0]
-        res_split = result.split()
-        for i in range(len(res_split)):
-            res_split[i] = float(res_split[i])
-        circ1[0].center[0] = res_split[0]
-        circ1[0].center[1] = -res_split[1]"""
-        
 
 async def initialize(transport, proto):
     transport
@@ -149,12 +139,21 @@ async def main():
         await draw()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                print("QUIT")
+                transport.sendto(f"quit".encode())
                 FINISHED = True
             if event.type == pygame.KEYDOWN:
-                transport.sendto(f"+{chr(event.key)}".encode())
+                try:
+                    if chr(event.key) in KeyList:
+                        transport.sendto(f"+{chr(event.key)}".encode())
+                except:
+                    ValueError
             if event.type == pygame.KEYUP:
-                transport.sendto(f"-{chr(event.key)}".encode())
-
+                try:
+                    if chr(event.key) in KeyList:    
+                        transport.sendto(f"-{chr(event.key)}".encode())
+                except:
+                    ValueError
         await asyncio.sleep(0.015)
     transport.close()
 
