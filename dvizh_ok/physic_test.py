@@ -81,6 +81,11 @@ match mode:
                 dvizh_ok.add_circle(r, r*r, WIDTH / n_w * (j+0.5), HEIGHT / n_h * (i+0.5), randint(-50, 50), randint(-50, 50))
                 j = k + n_w // 2
                 dvizh_ok.add_circle(r, r*r, WIDTH / n_w * (j+0.5), HEIGHT / n_h * (i+0.5), randint(-50, 50), randint(-50, 50))
+    case 4: # test
+        TIME_K = 10
+        COLORS = [RED, BLUE]
+        dvizh_ok.add_circle(10, 1, WIDTH * 0.1, HEIGHT / 2, 10, 0)
+        dvizh_ok.add_circle(0, 1, WIDTH * 0.9, HEIGHT / 2, 0, 0)
     case _:
         print("Unknowh mode")
         parser.print_help()

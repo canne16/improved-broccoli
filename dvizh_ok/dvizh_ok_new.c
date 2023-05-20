@@ -13,8 +13,6 @@
 #define BORDER_XMAX -4
 #define BORDER_YMAX -5
 
-const unsigned long long tick = 100; // tick duration in milliseconds
-
 unsigned int circles_size = 4;
 unsigned int sections_size = 4;
 struct timespec time_prev;
@@ -43,8 +41,6 @@ Section** sections;
 unsigned int circles_count = 0;
 unsigned int sections_count = 0;
 
-//double border_x_min = -INFINITY, border_y_min = -INFINITY, border_x_max = INFINITY, border_y_max = INFINITY;
-
 int init()
 {
     circles = calloc(circles_size, sizeof(Circle*));
@@ -52,16 +48,6 @@ int init()
     return 0;
 }
 
-/*void set_borders(double x1, double y1, double x2, double y2)
-{
-    border_x_min = x1;
-    border_y_min = y1;
-    border_x_max = x2;
-    border_y_max = y2;
-}*/
-
-// Returns id of new circle
-// Rewrite to optimize memory: scan for null_ptrs
 int add_circle(double r, double m, double x, double y, double vx, double vy)
 {
     Circle* circle = calloc(1, sizeof(Circle));
@@ -75,6 +61,12 @@ int add_circle(double r, double m, double x, double y, double vx, double vy)
 
     circles[circles_count++] = circle;
     return circles_count;
+}
+
+int del_circle(int id)
+{
+    free(circles[id]);
+    circles[id] = NULL;
 }
 
 int add_section(double x1, double y1, double x2, double y2)
@@ -95,7 +87,7 @@ int add_section(double x1, double y1, double x2, double y2)
 int del_section(int id)
 {
     free(sections[id]);
-    sections[id] = 0;
+    sections[id] = NULL;
 }
 
 void step(double delta_max)
@@ -106,8 +98,6 @@ void step(double delta_max)
     double dt_min = delta_max, dt = delta_max;
     int i_min = -1, j_min = -1;
     int type = -1; // -1 - undefined, 1 - circles+circles, 2 - circle+section, 3 - circle+section_end1, 4-circle+section_end2
-
-    //printf("Finding \"nearest\" circles\n");
 
     for (int i = 0; i < circles_count; i++)
     {
