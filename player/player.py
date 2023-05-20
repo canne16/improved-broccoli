@@ -54,6 +54,9 @@ class figure:
         if self.type == 0:
             pygame.draw.circle(screen, self.clr, centCO(self.center), self.R)
 
+        if self.type == 1:
+            pygame.draw.line(screen, self.clr, centCO(self.center), centCO(self.vorx1y1))
+
 
 circ1 = [figure(0, [0,0], 100, WHITE, 1, [10,10]) for i in range(1)] # как не прописывать всю строку?
 sect1 = [figure(1, [0,0], 100, WHITE, 1, [10,10]) for i in range(1)]
