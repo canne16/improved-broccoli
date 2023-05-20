@@ -16,11 +16,11 @@ void initial_pos() {
 
 int main()
 {
-    FILE* f_i = fopen("./fp_ser_eng", "r");
-    FILE* f_o = fopen("./fp_eng_ser", "w");
+    FILE* f_i = fopen("fp_ser_eng", "r");
+    FILE* f_o = fopen("fp_eng_ser", "w");
     char *s = calloc(sizeof(char), 256);
-    printf("Starting!");
-    fflush(stdin);
+    printf("Starting!\n");
+    fflush(stdout);
     while (1)
     {
         fscanf(f_i, "%s", s);
@@ -41,12 +41,14 @@ int main()
 
             while (strcmp(s, "end") != 0)
             {
-                if (strcmp(s, "add") == 0)
+                if (strcmp(s, "ADD") == 0)
                 {
                     int id;
                     char c;
                     double val;
                     fscanf(f_i, "%d %c %lf", &id, &c, &val);
+                    printf("ADD %d %c %lf\n", id, c, val);
+                    fflush(stdout);
                     if (id < 0 || id > circles_count)
                     {
                         continue;
