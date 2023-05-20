@@ -92,11 +92,23 @@ class Proto(asyncio.DatagramProtocol):
             for i in range(len(f) - 1):
                 fig = list(map(float, f[i].split()))
                 if s == 0:
+                    while fig[0] + 2 > len(circ1):
+                        circ1.append(figure(0, [0,0], 100, WHITE, 1, [10,10]))
+
                     circ1[fig[0]].R = fig[1]
                     circ1[fig[0]].mass = fig[2]
                     circ1[fig[0]].center = [fig[3],fig[4]]
                     circ1[fig[0]].v = [fig[5],fig[6]]
-            
+                """elif s == 1:
+                    while fig[0] + 2 > len(circ1):
+                        sect1.append(figure(0, [0,0], 100, WHITE, 1, [10,10]))
+
+                    sect1[fig[0]].R = fig[1]
+                    sect1[fig[0]].mass = fig[2]
+                    sec1[fig[0]].center = [fig[3],fig[4]]
+                    sect1[fig[0]].v = [fig[5],fig[6]]"""
+                    
+
 
                 
         """res_map[0]
