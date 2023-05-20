@@ -38,6 +38,7 @@ int main()
         if (strcmp(s, "begin") == 0)
         {
             fscanf(f_i, "%s", s);
+            //printf("BEGIN\n");
 
             while (strcmp(s, "end") != 0)
             {
@@ -47,7 +48,7 @@ int main()
                     char c;
                     double val;
                     fscanf(f_i, "%d %c %lf", &id, &c, &val);
-                    printf("ADD %d %c %lf\n", id, c, val);
+                    //printf("ADD %d %c %lf\n", id, c, val);
                     fflush(stdout);
                     if (id < 0 || id > circles_count)
                     {
@@ -82,8 +83,6 @@ int main()
                 fscanf(f_i, "%s", s);
             }
             step(TICK);
-            fprintf(f_o, "%d\n", circles_count + circles_size + 2);
-            //fprintf(f_o, "circles %d;", circles_count);
             for (int i = 0; i < circles_count; i++)
             {
                 /*
@@ -104,6 +103,7 @@ int main()
             fprintf(f_o, "3 0 1080 1820 1080,");
             fprintf(f_o, "\n");
             fflush(f_o);
+            //printf("END\n");
         }
     }
     fclose(f_i);

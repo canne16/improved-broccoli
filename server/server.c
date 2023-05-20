@@ -9,7 +9,7 @@
 
 
 #define STR_BUFFER 256
-#define TICK 50
+#define TICK 200
 #define DELAY 1000
 
 
@@ -193,8 +193,8 @@ int main(){
 	printf("Server started\n");	
 	return uv_run(loop, UV_RUN_DEFAULT);
 
+	fprintf(fp_out, "end\nexit\n");
 	fclose(fp_in);
 	fclose(fp_out);
 	lua_close(Lua);
-
 }
