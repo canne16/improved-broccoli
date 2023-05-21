@@ -22,7 +22,7 @@ int main()
     FILE* f_i = fopen("fp_ser_eng", "r");
     FILE* f_o = fopen("fp_eng_ser", "w");
     char *s = calloc(sizeof(char), 256);
-    char cmd[16];
+    char cmd[32];
     printf("Starting!");
     fflush(stdin);
     while (1)
@@ -53,7 +53,7 @@ int main()
                     printf("%s ", s);
                 #endif
 
-                if (strcmp(s, "ADD") == 0)
+                if (strcmp(s, "add") == 0)
                 {
                     int id;
                     double val;
@@ -198,6 +198,18 @@ int main()
                         circles[id]->vx *= val;
                         circles[id]->vy *= val;
                     }
+                }
+                if (strcmp(s, "add_circle") == 0)
+                {
+                    double r, m, x, y, vx, vy;
+                    fscanf(f_i, "%lf %lf %lf %lf %lf %lf", &r, &m, &x, &y, &vx, &vy);
+                    add_circle(r, m, x, y, vx, vy);
+                }
+                if (strcmp(s, "del_circle") == 0)
+                {
+                    int id;
+                    fscanf(f_i, "%d", &id);
+                    del_circle(id);
                 }
 
                 fscanf(f_i, "%s", s);
