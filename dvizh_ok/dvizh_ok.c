@@ -12,6 +12,7 @@
 
 unsigned int circles_size = 4;
 unsigned int sections_size = 4;
+int border_id = -1;
 struct timespec time_prev;
 
 typedef struct _Circle {
@@ -89,10 +90,17 @@ int del_section(int id)
 
 void set_borders(double x1, double y1, double x2, double y2)
 {
-    add_section(x1, y1, x2, y1);
+    if (border_id != -1)
+    {
+        for (int i = 0; i < 4; i++)
+        del_section(border_id + i);
+    }
+    fflush(stdout);
+    border_id = add_section(x1, y1, x2, y1);
     add_section(x1, y1, x1, y2);
     add_section(x2, y2, x2, y1);
     add_section(x2, y2, x1, y2);
+    fflush(stdout);
 }
 
 
@@ -140,7 +148,7 @@ void step(double delta_max)
             }
         }
     }
-    
+
     for (int i = 0; i < circles_count; i++)
     {
         if (circles[i] == NULL)
@@ -159,7 +167,7 @@ void step(double delta_max)
             double d = (circles[i]->x - sections[j]->x1) * nx + (circles[i]->y - sections[j]->y1) * ny;
 
 
-            if (circles[i]->r <= abs(d))
+            if (circles[i]->r <= fabs(d))
             {
                 if (d < 0)
                 {
@@ -206,7 +214,7 @@ void step(double delta_max)
                 if (a < b + c - EPS)
                     continue;
 
-                dt = abs(dt);
+                dt = fabs(dt);
 
                 if (dt_min > dt)
                 {
@@ -295,7 +303,6 @@ void step(double delta_max)
 
     if (i_min == -1)
         return;
-    //printf("type: %d\n", type);
     switch (type)
     {
     case 1:
@@ -377,7 +384,8 @@ void step(double delta_max)
     default:
         break;
     }
-
+    if (delta_max == dt_min)
+        return;
     step(delta_max - dt_min);
 }
 

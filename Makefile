@@ -1,5 +1,5 @@
 BIN_DIR := build
-FLAGS := -shared -fPIC
+FLAGS := -fPIC
 
 all: server_exec dvizh_ok_exec fp_eng_ser fp_ser_eng
 
