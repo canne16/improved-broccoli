@@ -20,7 +20,11 @@ int main()
     fflush(stdout);
     while (1)
     {
-        fscanf(f_i, "%s", s);
+        if (fscanf(f_i, "%s", s) < 1)
+        {
+            printf("Broken pipe! Exiting\n");
+            return -1;
+        }
         if (strcmp(s, "init") == 0)
         {
             fscanf(f_i, "%d %d\n", &WIDTH, &HEIGHT);
@@ -28,14 +32,22 @@ int main()
             fflush(stdout);
             free_all();
             init();
-            set_borders(0, 0, 1920, 1080);
             continue;
+        }
+        if (strcmp(s, "exit") == 0)
+        {
+            printf("finishing\n");
+            return 0;
         }
         if (strcmp(s, "begin") == 0)
         {
             printf("begin\n");
             fflush(stdout);
-            fscanf(f_i, "%s", s);
+            if (fscanf(f_i, "%s", s) < 1)
+            {
+                printf("Broken pipe!\n");
+                continue;
+            }
             
             #ifdef DEBUG
                 printf("BEGIN\n");
@@ -51,7 +63,11 @@ int main()
                 {
                     int id;
                     double val;
-                    fscanf(f_i, "%d %s %lf", &id, cmd, &val);
+                    if (fscanf(f_i, "%d %s %lf", &id, cmd, &val) < 3)
+                    {
+                        printf("Broken pipe!\n");
+                        continue;
+                    }
 
                     #ifdef DEBUG
                         printf("%d %lf\n", id, val);
@@ -228,7 +244,7 @@ int main()
                 fprintf(f_o, "%d %lf %lf %lf %lf %lf %lf,", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
             }
             fprintf(f_o, ";");
-            for (int i = 0; i < circles_count; i++)
+            for (int i = 0; i < sections_count; i++)
             {
                 fprintf(f_o, "%d %lf %lf %lf %lf,", sections[i]->id, sections[i]->x1, sections[i]->y1, sections[i]->x2, sections[i]->y2);
             }
