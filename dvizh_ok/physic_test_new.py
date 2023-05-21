@@ -6,8 +6,8 @@ import argparse
 import pygame
 
 SHOW_FPS = True
-WIDTH = 1920
-HEIGHT = 1080
+WIDTH = 1920 // 2
+HEIGHT = 1080 // 2
 MICROSTEPS = 1 # 1-10 best values, 1 is the best
 
 FPS = 60 # Frames per second
@@ -41,52 +41,30 @@ parser = argparse.ArgumentParser(
                     description="Demonstration of physic engine written by vlad_cool for MIPT project")
 
 parser.add_argument("-m", "--mode", type=int, default=0,
-                    help="MODES: 0 - Brownian motion, 1 - Wave, 2 - chaotic, 3 - diffusion, 4 - screensaver")
+                    help="MODES: Not available")
 
 args = parser.parse_args()
 mode = args.mode
 
 match mode:
-    case 0: # Brownian motion
-        TIME_K = 5
-        n = 400
-        dvizh_ok.add_circle(200, 200, WIDTH / 2, HEIGHT / 2, 0, 0)
+    case 0:
+        TIME_K = 20
+        #dvizh_ok.add_section(100, 100, 200, 200)
+        #dvizh_ok.add_section(0, 0, HEIGHT, HEIGHT)
+        #dvizh_ok.add_section(200, 0, 0, HEIGHT)
+        #dvizh_ok.add_section(0, HEIGHT, 200, 0)
+        #dvizh_ok.add_section(0, 0, 1000, 1000)
+        #dvizh_ok.add_section(0, 0, 1000, 1000)
+        
+        dvizh_ok.add_circle(30, 200, 800, HEIGHT / 2, -5, -5)
+        #dvizh_ok.add_section(0, 0, 600, 600)
+        #dvizh_ok.add_section(100, HEIGHT / 2 - 100 * 1.2, 100, 0)
+        #dvizh_ok.add_section(200, HEIGHT / 2 - 100, 200, 0)
+        #dvizh_ok.add_section(0, 0, WIDTH, 0)
 
-        for i in range(n):
-            v = randint(100, 300)
-            phi = randint(0, 2000000) / 1000000
-            dvizh_ok.add_circle(2, 1, WIDTH / 2, HEIGHT / 2, v * math.sin(math.pi * phi), v * math.cos(math.pi * phi))
-    case 1: # wave
-        TIME_K = 1
-        n = 36
-        r = 24
-        k = 2 * r
-        for i in range(n - 1):
-            dvizh_ok.add_circle(r, 1, WIDTH / 2 - n / 2 * k + i * k, HEIGHT / 2, 0, 0)
-        dvizh_ok.add_circle(r, 1, WIDTH / 2 - n / 2 * k + n * k, HEIGHT / 2, 200, 0)
-    case 2: # chaotic
-        TIME_K = 10
-        n = 256
-        for i in range(n):
-            r = randint(3, 30)
-            dvizh_ok.add_circle(r, r*r, randint(int(r) + 2, WIDTH - int(r) - 2), randint(int(r) + 2, HEIGHT - int(r) - 2), randint(-50, 50), randint(-50, 50))
-        #dvizh_ok.add_section(0, HEIGHT / 2, WIDTH, HEIGHT / 2)
-    case 3: # diffusion
-        TIME_K = 1
-        COLORS = [RED, BLUE]
-        n_w = 24
-        n_h = 16
-        r = min(WIDTH // n_w, HEIGHT // n_h) // 2 - 4
-        for i in range(n_h):
-            for k in range(n_w // 2):
-                j = k
-                dvizh_ok.add_circle(r, r*r, WIDTH / n_w * (j+0.5), HEIGHT / n_h * (i+0.5), randint(-50, 50), randint(-50, 50))
-                j = k + n_w // 2
-                dvizh_ok.add_circle(r, r*r, WIDTH / n_w * (j+0.5), HEIGHT / n_h * (i+0.5), randint(-50, 50), randint(-50, 50))
-    case 4: # Screensaver
-        TIME_K = 10
-        COLORS = [RED]
-        dvizh_ok.add_circle(30, 1, 100, 100, 5.7, 4.2)
+        #dvizh_ok.add_circle(200, 200, 700, 0, 0, 5)
+        #dvizh_ok.add_section(700, HEIGHT / 2 - 1, 700, HEIGHT)
+        #pass
     case _:
         print("Unknowh mode")
         parser.print_help()
@@ -108,7 +86,8 @@ dvizh_ok.get_section_y2.restype = ctypes.c_double
 
 pygame.init()
 pygame.mixer.init()
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+#screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("My Game")
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 36)

@@ -1,19 +1,16 @@
 BIN_DIR := build
 FLAGS := -shared -fPIC
 
-all: server_exec dvizh_ok.so dvizh_ok_exec fp_eng_ser fp_ser_eng
+all: server_exec dvizh_ok_exec fp_eng_ser fp_ser_eng
 
 server_exec: ./server/server.c	
-	gcc -I/usr/include/lua5.4 ./server/server.c -o server_exec -luv -llua5.4
-
-dvizh_ok.so: ./dvizh_ok/dvizh_ok.c
-	gcc $(FLAGS) ./dvizh_ok/dvizh_ok.c -o dvizh_ok.so
+	gcc -I/usr/include/lua5.4 ./server/server.c -o server_exec -luv -llua || gcc -I/usr/include/lua5.4 ./server/server.c -o server_exec -luv -llua5.4
 
 dvizh_ok_exec: ./dvizh_ok/dvizh_ok.c ./dvizh_ok/main.c
 	gcc ./dvizh_ok/main.c -o dvizh_ok_exec -lm
 
 clean:
-	rm dvizh_ok.so
+	rm dvizh_ok/dvizh_ok.so
 	rm dvizh_ok_exec
 	rm server_exec
 	rm fp_eng_ser fp_ser_eng
