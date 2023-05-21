@@ -9,13 +9,15 @@ import numpy as np
 
 global proto
 
+IP = '192.168.0.108'
+PORT = 8787
 
 FLAG = False
 
 ##########################################################################
 WIDTH = 1920  # ширина игрового окна
 HEIGHT = 1080 # высота игрового окна
-FPS = 75 # частота кадров в секунду
+FPS = 60 # частота кадров в секунду
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -42,12 +44,12 @@ class figure:
     FigCount = 0
 
     def __init__(self, type, center, R, clr, mass, v):  
-        self.type = 0
-        self.center = [0,0]
-        self.R = 10
-        self.clr = list(np.random.choice(range(256), size=3))
-        self.mass = 1
-        self.vorx1y1 = [0,0]
+        self.type = type
+        self.center = center
+        self.R = R
+        self.clr = clr
+        self.mass = mass
+        self.vorx1y1 = v
         figure.FigCount += 1
 
     def draw(self, screen):
@@ -56,8 +58,7 @@ class figure:
             pygame.draw.circle(screen, self.clr, centCO(self.center), self.R)
 
         if self.type == 1:
-            pygame.draw.line(screen, self.clr, centCO(self.center), centCO(self.vorx1y1))
-
+            pygame.draw.line(screen, self.clr, centCO(self.center), centCO(self.vorx1y1), 3)
 
 circ1 = [] # как не прописывать всю строку?
 sect1 = []
@@ -76,6 +77,8 @@ async def draw():
     screen.fill(ScrnClr)
     for circle in circ1:
         circle.draw(screen)
+    for sect in sect1:
+        sect.draw(screen)
     pygame.display.flip()
 
 
@@ -90,22 +93,33 @@ class Proto(asyncio.DatagramProtocol):
 
     def datagram_received(self, data, addr):
         result = data.decode()
+        if result.startswith("CONF"):
+            S = result.split(' ')
+            global WIDTH
+            WIDTH = int(S[1])
+            global HEIGHT
+            HEIGHT = int(S[2])
+            global FPS
+            FPS= int(S[3])
+            pygame.display.set_mode((WIDTH, HEIGHT))
+            return
+        
         S = result.split(';')
         for s in range(len(S)):
-            f = S[s].split(",")
-            for i in range(len(f) - 1):
+            f = list(filter(None, S[s].split(",")))
+            for i in range(len(f)):
                 fig = list(map(float, f[i].split()))
                 if s == 0:
-                    while fig[0] + 1 > len(circ1):
-                        circ1.append(figure(0, [0,0], 100, WHITE, 1, [10,10]))
+                    if fig[0] >= len(circ1):
+                        circ1.append(figure(0, [0,0], 100, list(np.random.choice(range(256), size=3)), 1, [10,10]))
 
                     circ1[int(fig[0])].R = fig[1]
                     circ1[int(fig[0])].mass = fig[2]
                     circ1[int(fig[0])].center = [fig[3],fig[4]]
                     circ1[int(fig[0])].vorx1y1 = [fig[5],fig[6]]
                 elif s == 1:
-                    while fig[0] + 1 > len(sect1):
-                        sect1.append(figure(1, [0,0], 100, WHITE, 1, [10,10]))
+                    if fig[0] >= len(sect1):
+                        sect1.append(figure(1, [fig[1],fig[2]], 100, BLACK, 1, [fig[3],fig[4]]))
 
                     sect1[int(fig[0])].center = [fig[1],fig[2]]
                     sect1[int(fig[0])].vorx1y1 = [fig[3],fig[4]]
@@ -130,7 +144,7 @@ async def main():
     global FINISHED
     
     loop = asyncio.get_running_loop()
-    transport, proto = await loop.create_datagram_endpoint(Proto,remote_addr=('127.0.0.1', 8787))
+    transport, proto = await loop.create_datagram_endpoint(Proto,remote_addr=(IP, PORT))
     await initialize(transport,proto)
     FINISHED = False
   

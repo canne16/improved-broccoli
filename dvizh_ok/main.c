@@ -6,15 +6,17 @@
 #define TICK 1
 
 void initial_pos() {
-    add_circle(25, 1, 0, 0, 0, 0);
-    add_circle(25, 1, 0, 200, 0, 0);
-    add_circle(25, 1, 0, -200, 0, 0);
-    add_circle(25, 1, 200, 000, 0, 0);
-    add_circle(25, 1, -200, 0, 0, 0);
+//    add_circle(25, 1, 0, 0, 0, 0);
+//    add_circle(25, 1, 0, 200, 0, 0);
+//    add_circle(25, 1, 0, -200, 0, 0);
+//    add_circle(25, 1, 200, 000, 0, 0);
+//    add_circle(25, 1, -200, 0, 0, 0);
 }
 
 int main()
 {
+    int WIDTH, HEIGHT;
+
     FILE* f_i = fopen("fp_ser_eng", "r");
     FILE* f_o = fopen("fp_eng_ser", "w");
     char *s = calloc(sizeof(char), 256);
@@ -26,6 +28,10 @@ int main()
         fscanf(f_i, "%s", s);
         if (strcmp(s, "init") == 0)
         {
+            fscanf(f_i, "%d %d\n", &WIDTH, &HEIGHT);
+            printf("%d, %d\n", WIDTH, HEIGHT);
+            fflush(stdout);
+            set_borders(-WIDTH/2,-HEIGHT/2, WIDTH/2, HEIGHT/2);
             free_all();
             init();
             initial_pos();
@@ -38,6 +44,10 @@ int main()
                 printf("Finished.\n");
                 fflush(stdout);
                 return 0;
+            }
+            if (strncmp(s, "player", 6) == 0)
+            {
+                add_circle(25, 1, -200, 0, 0, 0);
             }
 
             while (strcmp(s, "end") != 0)
@@ -113,10 +123,10 @@ int main()
                 fprintf(f_o, "%d %lf %lf %lf %lf %lf %lf,", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
             }
             fprintf(f_o, ";");
-            fprintf(f_o, "0 0 0 1920 0,");
-            fprintf(f_o, "1 0 0 0 1080,");
-            fprintf(f_o, "2 1920 0 1920 1080,");
-            fprintf(f_o, "3 0 1080 1820 1080");
+            fprintf(f_o, "0 -500 -500 -500 500,");
+            fprintf(f_o, "1 -500 -500 500 -500,");
+            fprintf(f_o, "2 500 500 500 -500,");
+            fprintf(f_o, "3 500 500 -500 500");
             fprintf(f_o, "\n");
             fflush(f_o);
             //printf("END\n");
