@@ -17,7 +17,7 @@ FLAG = False
 ##########################################################################
 WIDTH = 1920  # ширина игрового окна
 HEIGHT = 1080 # высота игрового окна
-FPS = 60 # частота кадров в секунду
+FPS = 120 # частота кадров в секунду
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -160,6 +160,8 @@ async def main():
                 try:
                     if chr(event.key) in KeyList:
                         transport.sendto(f"+{chr(event.key)}".encode())
+                        print(f"+{chr(event.key)}")
+
                 except:
                     ValueError
             if event.type == pygame.KEYUP:

@@ -14,7 +14,7 @@
 #define PORT 8787
 #define WIDTH 1920
 #define HEIGHT 1080
-#define CONFIG "CONF 1920 1080 60"
+#define CONFIG "CONF 1920 1080 120"
 
 
 uv_loop_t *loop;        //  цикл для обработки событий
@@ -75,19 +75,21 @@ void add_client(const struct sockaddr* addr) {
 }
 
 
-void remove_client(const struct sockaddr* addr) {
+int remove_client(const struct sockaddr* addr) {
 	client_t* client;
 	client_t* prev;
+	int I = 0;
 	NPlayers--;
 	for ( client = game.clients, prev=NULL; client; prev=client, client=client->next) {
 		if (!memcmp(&client->addr, addr, sizeof(struct sockaddr_in)) ) {
-			printf("Client %d to be removed\n", client->index);
-			fflush(stdout);
+			I = client->index;
+			printf("Client %d to be removed\n", I);
+			fflush(fp_out);
 			if ( prev ) prev->next =client->next;
 			else game.clients = client->next;
 			free(client->buf.base);
 			free(client);
-			break;
+			return I;
 		}
 	}
 }
@@ -110,7 +112,7 @@ void on_read(uv_udp_t* req, ssize_t nread, const uv_buf_t* buf,	const struct soc
 			fflush(stdout);
 			add_client(addr);
 		} else if (strncmp(buf->base, "quit", 4) == 0) {	//	команда NEW == запрос на подключение к игре
-			remove_client(addr);
+			int I = remove_client(addr);
 			if (!NPlayers){
 				printf("Finished.\n");
 				fflush(stdout);
@@ -118,6 +120,9 @@ void on_read(uv_udp_t* req, ssize_t nread, const uv_buf_t* buf,	const struct soc
 				fprintf(fp_out, "exit\n");
 				fflush(stdout);
 			}
+			fprintf(fp_out, "remove\n");
+			fprintf(fp_out, "%d\n", I);
+			fflush(stdout);
 		} else {
 			client_t* client; 
 			for( client = game.clients; client; client = client->next)

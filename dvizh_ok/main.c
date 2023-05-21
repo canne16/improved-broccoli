@@ -40,7 +40,7 @@ int main()
         if (strcmp(s, "begin") == 0)
         {
             fscanf(f_i, "%s", s);
-            if (strcmp(s, "exit") == 0) {
+            if (strncmp(s, "exit", 4) == 0) {
                 printf("Finished.\n");
                 fflush(stdout);
                 return 0;
@@ -48,6 +48,12 @@ int main()
             if (strncmp(s, "player", 6) == 0)
             {
                 add_circle(25, 1, -200, 0, 0, 0);
+            }
+            if (strncmp(s, "remove", 6) == 0)
+            {
+                int i;
+                fscanf(f_i, "%d", &i);
+                //del_circle(i); не пашет
             }
 
             while (strcmp(s, "end") != 0)
