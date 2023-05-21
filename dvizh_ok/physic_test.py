@@ -41,7 +41,7 @@ parser = argparse.ArgumentParser(
                     description="Demonstration of physic engine written by vlad_cool for MIPT project")
 
 parser.add_argument("-m", "--mode", type=int, default=0,
-                    help="MODES: 0 - Brownian motion, 1 - Wave, 2 - chaotic, 3 - diffusion")
+                    help="MODES: 0 - Brownian motion, 1 - Wave, 2 - chaotic, 3 - diffusion, 4 - screensaver")
 
 args = parser.parse_args()
 mode = args.mode
@@ -70,7 +70,7 @@ match mode:
         for i in range(n):
             r = randint(3, 30)
             dvizh_ok.add_circle(r, r*r, randint(int(r) + 2, WIDTH - int(r) - 2), randint(int(r) + 2, HEIGHT - int(r) - 2), randint(-50, 50), randint(-50, 50))
-        dvizh_ok.add_section(0, HEIGHT / 2, WIDTH, HEIGHT / 2)
+        #dvizh_ok.add_section(0, HEIGHT / 2, WIDTH, HEIGHT / 2)
     case 3: # diffusion
         TIME_K = 1
         COLORS = [RED, BLUE]
@@ -83,10 +83,10 @@ match mode:
                 dvizh_ok.add_circle(r, r*r, WIDTH / n_w * (j+0.5), HEIGHT / n_h * (i+0.5), randint(-50, 50), randint(-50, 50))
                 j = k + n_w // 2
                 dvizh_ok.add_circle(r, r*r, WIDTH / n_w * (j+0.5), HEIGHT / n_h * (i+0.5), randint(-50, 50), randint(-50, 50))
-    case 4: # test
+    case 4: # Screensaver
         TIME_K = 10
-        COLORS = [RED, BLUE]
-        dvizh_ok.add_circle(10, 1, 100, 100, 50, 50)
+        COLORS = [RED]
+        dvizh_ok.add_circle(30, 1, 100, 100, 5.7, 4.2)
     case _:
         print("Unknowh mode")
         parser.print_help()
