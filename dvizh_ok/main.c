@@ -8,14 +8,6 @@
 #define max(x, y) (((x) > (y)) ? (x) : (y))
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
-void initial_pos() {
-//    add_circle(25, 1, 0, 0, 0, 0);
-//    add_circle(25, 1, 0, 200, 0, 0);
-//    add_circle(25, 1, 0, -200, 0, 0);
-//    add_circle(25, 1, 200, 000, 0, 0);
-//    add_circle(25, 1, -200, 0, 0, 0);
-}
-
 int main()
 {
     int WIDTH, HEIGHT;
@@ -36,7 +28,7 @@ int main()
             fflush(stdout);
             free_all();
             init();
-            initial_pos();
+            set_borders(0, 0, 1920, 1080);
             continue;
         }
         if (strcmp(s, "begin") == 0)
@@ -228,7 +220,9 @@ int main()
 
                 fscanf(f_i, "%s", s);
             }
+            fflush(stdout);
             step(TICK);
+            fflush(stdout);
             for (int i = 0; i < circles_count; i++)
             {
                 fprintf(f_o, "%d %lf %lf %lf %lf %lf %lf,", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
