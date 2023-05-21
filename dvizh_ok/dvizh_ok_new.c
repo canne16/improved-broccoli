@@ -327,21 +327,13 @@ void step(double delta_max)
             double sin_phi = (sections[j_min]->y1 - circles[i_min]->y) / r;
             double cos_phi = (sections[j_min]->x1 - circles[i_min]->x) / r;
 
-            //double vn1 = circles[i_min]->vx * cos_phi + circles[i_min]->vy * sin_phi;
-            //double vt1 = circles[i_min]->vy * cos_phi - circles[i_min]->vx * sin_phi;
-            //double m1 = circles[i_min]->m;
-            //
-            //double a, b, c; // ax^2 + 2bx + c = 0
-            //a = m1;
-            //b = -(m1 * vn1);
-            //c = vn1 * vn1 * m1;
-            //
-            //double vn1_new = (-b - sqrt(b * b - a * c)) / a;
-            
-            circles[i_min]->vx -= circles[i_min]->vx * cos_phi * 2;
-            circles[i_min]->vy -= circles[i_min]->vy * sin_phi * 2;
+            double vx = circles[i_min]->vx;
+            double vy = circles[i_min]->vy;
 
-            printf("vx: %lf, vy: %lf\n", circles[i_min]->vx, circles[i_min]->vy);
+            double alpha = circles[i_min]->vx * cos_phi + circles[i_min]->vy * sin_phi;
+            
+            circles[i_min]->vx -= 2 * cos_phi * alpha;
+            circles[i_min]->vy -= 2 * sin_phi * alpha;
         }
         break;
     case 4:
@@ -350,34 +342,13 @@ void step(double delta_max)
             double sin_phi = (sections[j_min]->y2 - circles[i_min]->y) / r;
             double cos_phi = (sections[j_min]->x2 - circles[i_min]->x) / r;
 
-            //double vn1 = circles[i_min]->vx * cos_phi + circles[i_min]->vy * sin_phi;
-            //double vt1 = circles[i_min]->vy * cos_phi - circles[i_min]->vx * sin_phi;
-            //double m1 = circles[i_min]->m;
-//
-            //double a, b, c; // ax^2 + 2bx + c = 0
-            //a = m1;
-            //b = -(m1 * vn1);
-            //c = vn1 * vn1 * m1;
-//
-            //double vn1_new = (-b - sqrt(b * b - a * c)) / a;
-            //
-            //circles[i_min]->vx = vn1_new * cos_phi - vt1 * sin_phi;
-            //circles[i_min]->vy = vn1_new * sin_phi + vt1 * cos_phi;
-//
-//
             double vx = circles[i_min]->vx;
             double vy = circles[i_min]->vy;
-            //circles[i_min]->vx += vx * cos_phi * 2 + vy * sin_phi * 2;
-            //circles[i_min]->vy += vy * sin_phi * 2 - vx * cos_phi * 2;
-            //circles[i_min]->vx += vx * cos_phi * 2 + vy * cos_phi * 2;
-            //circles[i_min]->vy += -vy * sin_phi * 2 + vx * sin_phi * 2;
 
             double alpha = circles[i_min]->vx * cos_phi + circles[i_min]->vy * sin_phi;
             
             circles[i_min]->vx -= 2 * cos_phi * alpha;
             circles[i_min]->vy -= 2 * sin_phi * alpha;
-
-            printf("sin: %lf, cos: %lf, alpha: %lf, vx: %lf, vy: %lf\n", sin_phi, cos_phi, alpha, circles[i_min]->vx, circles[i_min]->vy);
         }
         break;
     default:
