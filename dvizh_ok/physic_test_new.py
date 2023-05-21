@@ -48,14 +48,20 @@ mode = args.mode
 match mode:
     case 0:
         TIME_K = 20
-        dvizh_ok.add_circle(200, 200, 700, HEIGHT / 2, -20, 0)
         #dvizh_ok.add_section(100, 100, 200, 200)
         #dvizh_ok.add_section(0, 0, HEIGHT, HEIGHT)
         #dvizh_ok.add_section(200, 0, 0, HEIGHT)
-        dvizh_ok.add_section(200, 0, 200, HEIGHT / 2 - 1)
         #dvizh_ok.add_section(0, HEIGHT, 200, 0)
         #dvizh_ok.add_section(0, 0, 1000, 1000)
         #dvizh_ok.add_section(0, 0, 1000, 1000)
+        
+        #dvizh_ok.add_circle(200, 200, 500, HEIGHT / 2, -5, 0)
+        #dvizh_ok.add_section(100, 0, 100, HEIGHT / 2 - 100 * math.sqrt(2))
+        #dvizh_ok.add_section(200, 0, 200, HEIGHT / 2 - 1)
+
+        dvizh_ok.add_circle(200, 200, 700, 0, 0, 5)
+        dvizh_ok.add_section(700, HEIGHT, 700, HEIGHT / 2 - 1)
+        #pass
     case _:
         print("Unknowh mode")
         parser.print_help()
