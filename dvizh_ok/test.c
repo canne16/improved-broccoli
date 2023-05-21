@@ -119,6 +119,8 @@ void step(double delta_max)
 
             dt = -(delta_vx * delta_x + delta_vy * delta_y + sqrt(D)) / (delta_vx * delta_vx + delta_vy * delta_vy);
 
+            //printf("dt: %lf\n", dt);
+
             if (dt < -EPS)
                 continue;
 
@@ -178,7 +180,7 @@ void step(double delta_max)
                 double b = sqrt((sections[j]->x1 - touch_x) * (sections[j]->x1 - touch_x) + (sections[j]->y1 - touch_y) * (sections[j]->y1 - touch_y));
                 double c = sqrt((sections[j]->x2 - touch_x) * (sections[j]->x2 - touch_x) + (sections[j]->y2 - touch_y) * (sections[j]->y2 - touch_y));
 
-                //printf("a: %lf, b: %lf, c: %lf, tx: %lf, ty: %lf\n", a, b, c, touch_x, touch_y);
+                printf("a: %lf, b: %lf, c: %lf, tx: %lf, ty: %lf\n", a, b, c, touch_x, touch_y);
 
                 if (a < b + c - EPS)
                     continue;
@@ -200,79 +202,12 @@ void step(double delta_max)
     {
         if (circles[i] == NULL)
             continue;
-        for (int j = 0; j < sections_count; j++)
-        {
-            double r = circles[i]->r ;
-
-            double delta_x = circles[i]->x - sections[j]->x1;
-            double delta_y = circles[i]->y - sections[j]->y1;
-            double delta_vx = circles[i]->vx;
-            double delta_vy = circles[i]->vy;
-
-            double D = (delta_vx * delta_x + delta_vy * delta_y) * (delta_vx * delta_x + delta_vy * delta_y) - (delta_vx * delta_vx + delta_vy * delta_vy) * (delta_x * delta_x + delta_y * delta_y - r * r);
-            
-            if (D < 0)
-                continue;
-
-            dt = -(delta_vx * delta_x + delta_vy * delta_y + sqrt(D)) / (delta_vx * delta_vx + delta_vy * delta_vy);
-
-            if (dt < -EPS)
-                continue;
-
-            if (dt_min > dt)
-            {
-                dt_min = dt;
-                i_min = i;
-                j_min = j;
-                type = 3;
-            }
-        }
-    }
-
-    for (int i = 0; i < circles_count; i++)
-    {
-        if (circles[i] == NULL)
-            continue;
-        for (int j = 0; j < sections_count; j++)
-        {
-            double r = circles[i]->r ;
-
-            double delta_x = circles[i]->x - sections[j]->x2;
-            double delta_y = circles[i]->y - sections[j]->y2;
-            double delta_vx = circles[i]->vx;
-            double delta_vy = circles[i]->vy;
-
-            double D = (delta_vx * delta_x + delta_vy * delta_y) * (delta_vx * delta_x + delta_vy * delta_y) - (delta_vx * delta_vx + delta_vy * delta_vy) * (delta_x * delta_x + delta_y * delta_y - r * r);
-            
-            if (D < 0)
-                continue;
-
-            dt = -(delta_vx * delta_x + delta_vy * delta_y + sqrt(D)) / (delta_vx * delta_vx + delta_vy * delta_vy);
-
-            if (dt < -EPS)
-                continue;
-
-            if (dt_min > dt)
-            {
-                dt_min = dt;
-                i_min = i;
-                j_min = j;
-                type = 4;
-            }
-        }
-    }
-
-    for (int i = 0; i < circles_count; i++)
-    {
-        if (circles[i] == NULL)
-            continue;
         circles[i]->x += circles[i]->vx * dt_min;
         circles[i]->y += circles[i]->vy * dt_min;
     }
 
     if (i_min == -1)
         return;
-    printf("type: %d\n", type);
     switch (type)
     {
     case 1:
@@ -308,49 +243,16 @@ void step(double delta_max)
         circles[j_min]->vy = vn2_new * sin_phi + vt2 * cos_phi;
         break;
     case 2:
-        {
-            double nx = +(sections[j_min]->y1 - sections[j_min]->y2);
-            double ny = -(sections[j_min]->x1 - sections[j_min]->x2);
-            double l = sqrt(nx * nx + ny * ny);
-            nx /= l;
-            ny /= l;
+        double nx = +(sections[j_min]->y1 - sections[j_min]->y2);
+        double ny = -(sections[j_min]->x1 - sections[j_min]->x2);
+        double l = sqrt(nx * nx + ny * ny);
+        nx /= l;
+        ny /= l;
 
-            double alpha = circles[i_min]->vx * nx + circles[i_min]->vy * ny;
-            
-            circles[i_min]->vx -= 2 * nx * alpha;
-            circles[i_min]->vy -= 2 * ny * alpha;
-        }
-        break;
-    case 3:
-        {
-            double r = circles[i_min]->r;
-            double sin_phi = (sections[j_min]->y1 - circles[i_min]->y) / r;
-            double cos_phi = (sections[j_min]->x1 - circles[i_min]->x) / r;
-
-            double vx = circles[i_min]->vx;
-            double vy = circles[i_min]->vy;
-
-            double alpha = circles[i_min]->vx * cos_phi + circles[i_min]->vy * sin_phi;
-            
-            circles[i_min]->vx -= 2 * cos_phi * alpha;
-            circles[i_min]->vy -= 2 * sin_phi * alpha;
-        }
-        break;
-    case 4:
-        {
-            double r = circles[i_min]->r;
-            double sin_phi = (sections[j_min]->y2 - circles[i_min]->y) / r;
-            double cos_phi = (sections[j_min]->x2 - circles[i_min]->x) / r;
-
-            double vx = circles[i_min]->vx;
-            double vy = circles[i_min]->vy;
-
-            double alpha = circles[i_min]->vx * cos_phi + circles[i_min]->vy * sin_phi;
-            
-            circles[i_min]->vx -= 2 * cos_phi * alpha;
-            circles[i_min]->vy -= 2 * sin_phi * alpha;
-        }
-        break;
+        double alpha = circles[i_min]->vx * nx + circles[i_min]->vy * ny;
+        
+        circles[i_min]->vx -= 2 * nx * alpha;
+        circles[i_min]->vy -= 2 * ny * alpha;
     default:
         break;
     }

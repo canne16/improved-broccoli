@@ -29,6 +29,7 @@ for i in range(36):
 
 dvizh_ok = ctypes.cdll.LoadLibrary("./dvizh_ok.so")
 dvizh_ok.add_circle.argtypes = [ctypes.c_double] * 6
+dvizh_ok.add_section.argtypes = [ctypes.c_double] * 4
 dvizh_ok.set_borders.argtypes = [ctypes.c_double] * 4
 
 dvizh_ok.init()
@@ -69,6 +70,7 @@ match mode:
         for i in range(n):
             r = randint(3, 30)
             dvizh_ok.add_circle(r, r*r, randint(int(r) + 2, WIDTH - int(r) - 2), randint(int(r) + 2, HEIGHT - int(r) - 2), randint(-50, 50), randint(-50, 50))
+        dvizh_ok.add_section(0, HEIGHT / 2, WIDTH, HEIGHT / 2)
     case 3: # diffusion
         TIME_K = 1
         COLORS = [RED, BLUE]
@@ -84,20 +86,23 @@ match mode:
     case 4: # test
         TIME_K = 10
         COLORS = [RED, BLUE]
-        dvizh_ok.add_circle(10, 1, WIDTH * 0.1, HEIGHT / 2, 10, 0)
-        dvizh_ok.add_circle(0, 1, WIDTH * 0.9, HEIGHT / 2, 0, 0)
+        dvizh_ok.add_circle(10, 1, 100, 100, 50, 50)
     case _:
         print("Unknowh mode")
         parser.print_help()
         exit(0)
 
-dvizh_ok.is_null.restype = ctypes.c_int
-dvizh_ok.get_r.restype = ctypes.c_double
-dvizh_ok.get_m.restype = ctypes.c_double
-dvizh_ok.get_x.restype = ctypes.c_double
-dvizh_ok.get_y.restype = ctypes.c_double
-dvizh_ok.get_vx.restype = ctypes.c_double
-dvizh_ok.get_vy.restype = ctypes.c_double
+dvizh_ok.is_null_circle.restype = ctypes.c_int
+dvizh_ok.get_circle_r.restype = ctypes.c_double
+dvizh_ok.get_circle_m.restype = ctypes.c_double
+dvizh_ok.get_circle_x.restype = ctypes.c_double
+dvizh_ok.get_circle_y.restype = ctypes.c_double
+dvizh_ok.get_circle_vx.restype = ctypes.c_double
+dvizh_ok.get_circle_vy.restype = ctypes.c_double
+dvizh_ok.get_section_x1.restype = ctypes.c_double
+dvizh_ok.get_section_y1.restype = ctypes.c_double
+dvizh_ok.get_section_x2.restype = ctypes.c_double
+dvizh_ok.get_section_y2.restype = ctypes.c_double
 
 ##### GUI
 
@@ -144,14 +149,25 @@ while running:
     screen.fill(BLACK)
 
     for i in range(ctypes.c_int.in_dll(dvizh_ok, "circles_count").value):
-        if dvizh_ok.is_null(ctypes.c_int(i)) == 1:
+        if dvizh_ok.is_null_circle(ctypes.c_int(i)) == 1:
             continue
 
-        x = ctypes.c_double(dvizh_ok.get_x(ctypes.c_int(i))).value
-        y = ctypes.c_double(dvizh_ok.get_y(ctypes.c_int(i))).value
-        r = ctypes.c_double(dvizh_ok.get_r(ctypes.c_int(i))).value
+        x = ctypes.c_double(dvizh_ok.get_circle_x(ctypes.c_int(i))).value
+        y = ctypes.c_double(dvizh_ok.get_circle_y(ctypes.c_int(i))).value
+        r = ctypes.c_double(dvizh_ok.get_circle_r(ctypes.c_int(i))).value
 
         pygame.draw.circle(screen, COLORS[i % len(COLORS)], [x, y], r, 3)
+    
+    for i in range(ctypes.c_int.in_dll(dvizh_ok, "sections_count").value):
+        if dvizh_ok.is_null_section(ctypes.c_int(i)) == 1:
+            continue
+
+        x1 = ctypes.c_double(dvizh_ok.get_section_x1(ctypes.c_int(i))).value
+        y1 = ctypes.c_double(dvizh_ok.get_section_y1(ctypes.c_int(i))).value
+        x2 = ctypes.c_double(dvizh_ok.get_section_x2(ctypes.c_int(i))).value
+        y2 = ctypes.c_double(dvizh_ok.get_section_y2(ctypes.c_int(i))).value
+    
+        pygame.draw.line(screen, (255, 255, 255), [x1, y1], [x2, y2])
     
     if SHOW_FPS:
         fps_counter.render()
