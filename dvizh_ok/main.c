@@ -32,6 +32,7 @@ int main()
         {
             free_all();
             init();
+            set_borders(0, 0, 1920, 1080);
             initial_pos();
             continue;
         }
@@ -215,18 +216,20 @@ int main()
                 {
                     double x1, y1, x2, y2;
                     fscanf(f_i, "%lf %lf %lf %lf", &x1, &y1, &x2, &y2);
-                    //add_section(x1, y1, x2, y2);
+                    add_section(x1, y1, x2, y2);
                 }
                 if (strcmp(s, "del_section") == 0)
                 {
                     int id;
                     fscanf(f_i, "%d", &id);
-                    //del_section(id);
+                    del_section(id);
                 }
 
                 fscanf(f_i, "%s", s);
             }
+            fflush(stdout);
             step(TICK);
+            fflush(stdout);
             for (int i = 0; i < circles_count; i++)
             {
                 fprintf(f_o, "%d %lf %lf %lf %lf %lf %lf,", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);

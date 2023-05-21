@@ -87,6 +87,9 @@ match mode:
         TIME_K = 10
         COLORS = [RED]
         dvizh_ok.add_circle(30, 1, 100, 100, 5.7, 4.2)
+    case 5:
+        TIME_K = 1
+        pass
     case _:
         print("Unknowh mode")
         parser.print_help()
