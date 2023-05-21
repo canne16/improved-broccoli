@@ -27,12 +27,13 @@ for i in range(36):
     color.hsva = (i * 10, 100, 100, 100)
     COLORS.append(color)
 
-dvizh_ok = ctypes.cdll.LoadLibrary("./dvizh_ok_new.so")
+dvizh_ok = ctypes.cdll.LoadLibrary("./dvizh_ok.so")
 dvizh_ok.add_circle.argtypes = [ctypes.c_double] * 6
 dvizh_ok.add_section.argtypes = [ctypes.c_double] * 4
+dvizh_ok.set_borders.argtypes = [ctypes.c_double] * 4
 
 dvizh_ok.init()
-#dvizh_ok.set_borders(0, 0, WIDTH, HEIGHT)
+dvizh_ok.set_borders(0, 0, WIDTH, HEIGHT)
 
 mode = 0
 parser = argparse.ArgumentParser(
@@ -55,9 +56,11 @@ match mode:
         #dvizh_ok.add_section(0, 0, 1000, 1000)
         #dvizh_ok.add_section(0, 0, 1000, 1000)
         
-        dvizh_ok.add_circle(200, 200, 500, HEIGHT / 2, -5, 0)
-        #dvizh_ok.add_section(100, HEIGHT / 2 - 100 * math.sqrt(2), 100, 0)
-        dvizh_ok.add_section(200, HEIGHT / 2 - 1, 200, 0)
+        dvizh_ok.add_circle(30, 200, 800, HEIGHT / 2, -5, -5)
+        #dvizh_ok.add_section(0, 0, 600, 600)
+        #dvizh_ok.add_section(100, HEIGHT / 2 - 100 * 1.2, 100, 0)
+        #dvizh_ok.add_section(200, HEIGHT / 2 - 100, 200, 0)
+        #dvizh_ok.add_section(0, 0, WIDTH, 0)
 
         #dvizh_ok.add_circle(200, 200, 700, 0, 0, 5)
         #dvizh_ok.add_section(700, HEIGHT / 2 - 1, 700, HEIGHT)
