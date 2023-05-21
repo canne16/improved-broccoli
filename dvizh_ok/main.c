@@ -216,13 +216,13 @@ int main()
                 {
                     double x1, y1, x2, y2;
                     fscanf(f_i, "%lf %lf %lf %lf", &x1, &y1, &x2, &y2);
-                    //add_section(x1, y1, x2, y2);
+                    add_section(x1, y1, x2, y2);
                 }
                 if (strcmp(s, "del_section") == 0)
                 {
                     int id;
                     fscanf(f_i, "%d", &id);
-                    //del_section(id);
+                    del_section(id);
                 }
 
                 fscanf(f_i, "%s", s);
