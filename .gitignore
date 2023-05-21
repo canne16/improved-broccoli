@@ -2,3 +2,5 @@ venv
 dvizh_ok/__pycache__
 dvizh_ok/dvizh_ok.so
 .vscode
+server_exec
+dvizh_ok_exec
