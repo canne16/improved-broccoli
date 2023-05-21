@@ -8,15 +8,6 @@
 #define max(x, y) (((x) > (y)) ? (x) : (y))
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
-void initial_pos() {
-    add_circle(100, 1, 100, 100, 0, 0);
-    add_circle(5, 1, 300, 100, 0, 0);
-    add_circle(10, 1, 300, 100, 0, 0);
-    add_circle(100, 1, 100, 100, 0, 0);
-    add_circle(10, 1, 300, 100, 0, 0);
-    add_circle(5, 1, 300, 100, 0, 0);
-}
-
 int main()
 {
     FILE* f_i = fopen("fp_ser_eng", "r");
@@ -33,7 +24,6 @@ int main()
             free_all();
             init();
             set_borders(0, 0, 1920, 1080);
-            initial_pos();
             continue;
         }
         if (strcmp(s, "exit") == 0)
