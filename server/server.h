@@ -1,4 +1,3 @@
-
 void interpret(int,char*);
 void start_engine();
 int send_pos();

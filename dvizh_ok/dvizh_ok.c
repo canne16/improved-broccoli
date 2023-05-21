@@ -13,7 +13,7 @@
 #define BORDER_XMAX -4
 #define BORDER_YMAX -5
 
-const unsigned long long tick = 100; // tick duration in milliseconds
+const unsigned long long tick = 1; // tick duration in milliseconds
 
 unsigned int circles_size = 4;
 unsigned int polygons_size = 4;

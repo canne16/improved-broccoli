@@ -8,10 +8,13 @@
 #include "server.h"
 
 
-#define STR_BUFFER 256
-#define TICK 200
+#define TICK 1
 #define DELAY 1000
-
+#define IP "192.168.0.108"
+#define PORT 8787
+#define WIDTH 1920
+#define HEIGHT 1080
+#define CONFIG "CONF 1920 1080 120"
 
 
 uv_loop_t *loop;        //  цикл для обработки событий
@@ -26,6 +29,7 @@ int NPlayers = 0;
 lua_State* Lua;
 
 char* POS;
+char* CONF;
 
 
 typedef struct _client_list {	//	односвязный список
@@ -63,7 +67,31 @@ void add_client(const struct sockaddr* addr) {
 	NPlayers += 1;			
 	client->next = game.clients;										//
 	game.clients = client;		
-	printf("Adding client with index %d\n", client->index);		//										//
+	send_pos(CONF);
+	printf("Adding client with index %d\n", client->index);		//	
+	fflush(stdout);
+	fprintf(fp_out, "player %d\n", client->index);
+	fflush(fp_out);
+}
+
+
+int remove_client(const struct sockaddr* addr) {
+	client_t* client;
+	client_t* prev;
+	int I = 0;
+	NPlayers--;
+	for ( client = game.clients, prev=NULL; client; prev=client, client=client->next) {
+		if (!memcmp(&client->addr, addr, sizeof(struct sockaddr_in)) ) {
+			I = client->index;
+			printf("Client %d to be removed\n", I);
+			fflush(fp_out);
+			if ( prev ) prev->next =client->next;
+			else game.clients = client->next;
+			free(client->buf.base);
+			free(client);
+			return I;
+		}
+	}
 }
 
 
@@ -77,10 +105,24 @@ void add_client(const struct sockaddr* addr) {
 void on_read(uv_udp_t* req, ssize_t nread, const uv_buf_t* buf,	const struct sockaddr* addr, unsigned flags) {
 	if ( nread > 0 ) {	//	если при получении не было ошибок и пакет не пустой
 		int index = 0;
-		printf("data got: %s\n", buf->base);	//	buf->base == содержимое пакета без адреса и прочего
+		//printf("data got: %s\n", buf->base);	//	buf->base == содержимое пакета без адреса и прочего
+		//fflush(stdout);
 		if (strncmp(buf->base, "initial", 7) == 0) {	//	команда NEW == запрос на подключение к игре
 			printf("Adding new client\n");
+			fflush(stdout);
 			add_client(addr);
+		} else if (strncmp(buf->base, "quit", 4) == 0) {	//	команда NEW == запрос на подключение к игре
+			int I = remove_client(addr);
+			if (!NPlayers){
+				printf("Finished.\n");
+				fflush(stdout);
+				lua_close(Lua);
+				fprintf(fp_out, "exit\n");
+				fflush(stdout);
+			}
+			fprintf(fp_out, "remove\n");
+			fprintf(fp_out, "%d\n", I);
+			fflush(stdout);
 		} else {
 			client_t* client; 
 			for( client = game.clients; client; client = client->next)
@@ -142,7 +184,7 @@ void alloc_buffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf){
 }
 
 
-int send_pos(){
+int send_pos(char* data){
 	client_t * client; 
 	for (client=game.clients; client; client=client->next) {
 		char addr[17] = {0};
@@ -150,7 +192,7 @@ int send_pos(){
 		//printf("Sending pos to client %s:%d\n", addr, client->addr.sin_port);
 		uv_udp_send_t* send_req = malloc(sizeof(uv_udp_send_t));
 		
-		client->buf.len = sprintf(client->buf.base, "%s", POS);
+		client->buf.len = sprintf(client->buf.base, "%s", data);
 		//printf("Buf: %s\n", client->buf.base);
 		int err = uv_udp_send(send_req, &recv_socket, &client->buf, 1, (const struct sockaddr*)&client->addr, on_send);
 		if ( err ) 
@@ -161,9 +203,10 @@ int send_pos(){
 }
 
 void start_engine(){
-		char *data = "init\nbegin";
-        fprintf(fp_out, "%s\n", data);
-        fflush(fp_out);
+        fprintf(fp_out, "init\n");
+        fprintf(fp_out, "%d %d\n", WIDTH, HEIGHT);
+        fprintf(fp_out, "begin\n");
+		fflush(fp_out);
 }
 
 
@@ -174,8 +217,10 @@ int main(){
 	fp_out = fopen("fp_ser_eng", "w");
 	fp_in = fopen("fp_eng_ser", "r");
 
-	POS = malloc(4096);
-	
+	POS = malloc(512);
+	CONF = malloc(256);
+	strcpy(CONF, CONFIG);
+
 	Lua = luaL_newstate();
 	luaL_openlibs(Lua);
 	luaL_dofile(Lua, "./server/interpretator.lua");
@@ -185,16 +230,13 @@ int main(){
 
 	uv_udp_init(loop, &recv_socket);	//	привязка сокета к циклу
     uv_timer_init(loop, &game_tick);	//	привязка таймера к циклу
-    uv_ip4_addr("127.0.0.1", 8787, &recv_addr);	//	задание адреса
+    uv_ip4_addr(IP, PORT, &recv_addr);	//	задание адреса
     uv_udp_bind(&recv_socket, (const struct sockaddr*)&recv_addr, UV_UDP_REUSEADDR);	//	настройка UDP
     uv_timer_start(&game_tick, on_timer, DELAY, TICK);
 	uv_udp_recv_start(&recv_socket, alloc_buffer, on_read);
 
 	printf("Server started\n");	
-	return uv_run(loop, UV_RUN_DEFAULT);
-
-	fprintf(fp_out, "end\nexit\n");
-	fclose(fp_in);
-	fclose(fp_out);
-	lua_close(Lua);
+	uv_run(loop, UV_RUN_DEFAULT);
+	
+	return 1;
 }

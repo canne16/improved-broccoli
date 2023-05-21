@@ -4,17 +4,20 @@ import time
 import random
 import asyncio
 import pygame
+import numpy as np
 
 
 global proto
 
+IP = '192.168.0.108'
+PORT = 8787
 
 FLAG = False
 
 ##########################################################################
-WIDTH = 1000  # ширина игрового окна
-HEIGHT = 500 # высота игрового окна
-FPS = 30 # частота кадров в секунду
+WIDTH = 1920  # ширина игрового окна
+HEIGHT = 1080 # высота игрового окна
+FPS = 120 # частота кадров в секунду
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -27,26 +30,26 @@ BLUE = (0, 0, 255)
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Game on")
+pygame.display.set_caption("Game on!")
 clock = pygame.time.Clock()
 Data = []
+KeyList = "wasdop"
 ###########################################################################
 
 
-ScrnClr = GREEN
-        
+ScrnClr = WHITE
 
 class figure:  
     """Базовый класс для всех фигур"""  
     FigCount = 0
 
     def __init__(self, type, center, R, clr, mass, v):  
-        self.type = 0
-        self.center = [0,0]
-        self.R = 100
-        self.clr = BLUE
-        self.mass = 1
-        self.vorx1y1 = [0,0]
+        self.type = type
+        self.center = center
+        self.R = R
+        self.clr = clr
+        self.mass = mass
+        self.vorx1y1 = v
         figure.FigCount += 1
 
     def draw(self, screen):
@@ -55,11 +58,10 @@ class figure:
             pygame.draw.circle(screen, self.clr, centCO(self.center), self.R)
 
         if self.type == 1:
-            pygame.draw.line(screen, self.clr, centCO(self.center), centCO(self.vorx1y1))
+            pygame.draw.line(screen, self.clr, centCO(self.center), centCO(self.vorx1y1), 3)
 
-
-circ1 = [figure(0, [0,0], 100, WHITE, 1, [10,10]) for i in range(1)] # как не прописывать всю строку?
-sect1 = [figure(1, [0,0], 100, WHITE, 1, [10,10]) for i in range(1)]
+circ1 = [] # как не прописывать всю строку?
+sect1 = []
 
 
 
@@ -72,10 +74,11 @@ def centCO(XY):
 
 
 async def draw():
-
     screen.fill(ScrnClr)
-    for i in range(len(circ1)):
-        circ1[i].draw(screen)
+    for circle in circ1:
+        circle.draw(screen)
+    for sect in sect1:
+        sect.draw(screen)
     pygame.display.flip()
 
 
@@ -89,37 +92,38 @@ class Proto(asyncio.DatagramProtocol):
         transport.sendto(f"initial".encode())
 
     def datagram_received(self, data, addr):
-        S = str.split(';')
-
+        result = data.decode()
+        if result.startswith("CONF"):
+            S = result.split(' ')
+            global WIDTH
+            WIDTH = int(S[1])
+            global HEIGHT
+            HEIGHT = int(S[2])
+            global FPS
+            FPS= int(S[3])
+            pygame.display.set_mode((WIDTH, HEIGHT))
+            return
+        
+        S = result.split(';')
         for s in range(len(S)):
-            f = S[s].split(",")
-            for i in range(len(f) - 1):
+            f = list(filter(None, S[s].split(",")))
+            for i in range(len(f)):
                 fig = list(map(float, f[i].split()))
                 if s == 0:
-                    while fig[0] + 2 > len(circ1):
-                        circ1.append(figure(0, [0,0], 100, WHITE, 1, [10,10]))
+                    if fig[0] >= len(circ1):
+                        circ1.append(figure(0, [0,0], 100, list(np.random.choice(range(256), size=3)), 1, [10,10]))
 
-                    circ1[fig[0]].R = fig[1]
-                    circ1[fig[0]].mass = fig[2]
-                    circ1[fig[0]].center = [fig[3],fig[4]]
-                    circ1[fig[0]].vorx1y1 = [fig[5],fig[6]]
+                    circ1[int(fig[0])].R = fig[1]
+                    circ1[int(fig[0])].mass = fig[2]
+                    circ1[int(fig[0])].center = [fig[3],fig[4]]
+                    circ1[int(fig[0])].vorx1y1 = [fig[5],fig[6]]
                 elif s == 1:
-                    while fig[0] + 2 > len(circ1):
-                        sect1.append(figure(1, [0,0], 100, WHITE, 1, [10,10]))
+                    if fig[0] >= len(sect1):
+                        sect1.append(figure(1, [fig[1],fig[2]], 100, BLACK, 1, [fig[3],fig[4]]))
 
-                    sect1[fig[0]].center = [fig[1],fig[2]]
-                    sect1[fig[0]].vorx1y1 = [fig[3],fig[4]]
+                    sect1[int(fig[0])].center = [fig[1],fig[2]]
+                    sect1[int(fig[0])].vorx1y1 = [fig[3],fig[4]]
                     
-
-
-                
-        """res_map[0]
-        res_split = result.split()
-        for i in range(len(res_split)):
-            res_split[i] = float(res_split[i])
-        circ1[0].center[0] = res_split[0]
-        circ1[0].center[1] = -res_split[1]"""
-        
 
 async def initialize(transport, proto):
     transport
@@ -140,7 +144,7 @@ async def main():
     global FINISHED
     
     loop = asyncio.get_running_loop()
-    transport, proto = await loop.create_datagram_endpoint(Proto,remote_addr=('127.0.0.1', 8787))
+    transport, proto = await loop.create_datagram_endpoint(Proto,remote_addr=(IP, PORT))
     await initialize(transport,proto)
     FINISHED = False
   
@@ -149,12 +153,23 @@ async def main():
         await draw()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                print("QUIT")
+                transport.sendto(f"quit".encode())
                 FINISHED = True
             if event.type == pygame.KEYDOWN:
-                transport.sendto(f"+{chr(event.key)}".encode())
-            if event.type == pygame.KEYUP:
-                transport.sendto(f"-{chr(event.key)}".encode())
+                try:
+                    if chr(event.key) in KeyList:
+                        transport.sendto(f"+{chr(event.key)}".encode())
+                        print(f"+{chr(event.key)}")
 
+                except:
+                    ValueError
+            if event.type == pygame.KEYUP:
+                try:
+                    if chr(event.key) in KeyList:    
+                        transport.sendto(f"-{chr(event.key)}".encode())
+                except:
+                    ValueError
         await asyncio.sleep(0.015)
     transport.close()
 
