@@ -9,7 +9,9 @@ import numpy as np
 
 global proto
 
-IP = '192.168.0.108'
+#IP = '192.168.0.49'
+#IP = '127.0.0.1'
+IP = "192.168.0.153"
 PORT = 8787
 
 FLAG = False
@@ -58,7 +60,7 @@ class figure:
             pygame.draw.circle(screen, self.clr, centCO(self.center), self.R)
 
         if self.type == 1:
-            pygame.draw.line(screen, self.clr, centCO(self.center), centCO(self.vorx1y1), 3)
+            pygame.draw.line(screen, self.clr, centCO(self.center), centCO(self.vorx1y1), 5)
 
 circ1 = [] # как не прописывать всю строку?
 sect1 = []
@@ -66,6 +68,7 @@ sect1 = []
 
 
 def centCO(XY):
+    #return XY
     XY1 = [0]*2
     XY1[0] = XY[0] + WIDTH/2
     XY1[1] = XY[1] + HEIGHT/2
@@ -92,7 +95,7 @@ class Proto(asyncio.DatagramProtocol):
         transport.sendto(f"initial".encode())
 
     def datagram_received(self, data, addr):
-        result = data.decode()
+        result = data.decode().rstrip('\n')
         if result.startswith("CONF"):
             S = result.split(' ')
             global WIDTH
@@ -112,7 +115,6 @@ class Proto(asyncio.DatagramProtocol):
                 if s == 0:
                     if fig[0] >= len(circ1):
                         circ1.append(figure(0, [0,0], 100, list(np.random.choice(range(256), size=3)), 1, [10,10]))
-
                     circ1[int(fig[0])].R = fig[1]
                     circ1[int(fig[0])].mass = fig[2]
                     circ1[int(fig[0])].center = [fig[3],fig[4]]
@@ -153,15 +155,12 @@ async def main():
         await draw()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                print("QUIT")
                 transport.sendto(f"quit".encode())
                 FINISHED = True
             if event.type == pygame.KEYDOWN:
                 try:
                     if chr(event.key) in KeyList:
                         transport.sendto(f"+{chr(event.key)}".encode())
-                        print(f"+{chr(event.key)}")
-
                 except:
                     ValueError
             if event.type == pygame.KEYUP:

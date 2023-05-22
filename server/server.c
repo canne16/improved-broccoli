@@ -10,11 +10,11 @@
 
 #define TICK 1
 #define DELAY 1000
-#define IP "192.168.0.108"
+#define IP "192.168.0.153"
 #define PORT 8787
 #define WIDTH 1920
 #define HEIGHT 1080
-#define CONFIG "CONF 1920 1080 120"
+#define CONFIG "CONF 900 500 120"
 
 
 uv_loop_t *loop;        //  цикл для обработки событий
@@ -120,7 +120,7 @@ void on_read(uv_udp_t* req, ssize_t nread, const uv_buf_t* buf,	const struct soc
 				fprintf(fp_out, "exit\n");
 				fflush(stdout);
 			}
-			fprintf(fp_out, "remove\n");
+			fprintf(fp_out, "del_circle ");
 			fprintf(fp_out, "%d\n", I);
 			fflush(stdout);
 		} else {
@@ -155,6 +155,11 @@ void on_send(uv_udp_send_t* req, int status) {
 void on_timer(uv_timer_t* timer){
 	fprintf(fp_out, "end\n");
 	fprintf(fp_out, "begin\n");
+
+	lua_getglobal(Lua, "tick");
+	lua_call(Lua, 0, 1);
+	fprintf(fp_out, "%s\n", lua_tostring(Lua, -1));
+
 	fflush(fp_out);
 	get_pos();
 	send_pos(POS);
@@ -172,6 +177,7 @@ void interpret(int index, char* comm){
 	lua_call(Lua, 2, 1);
 	//printf("%s\n", lua_tostring(Lua, -1));
 	fprintf(fp_out, "%s\n", lua_tostring(Lua, -1));
+	fflush(fp_out);
 	lua_pop(Lua, 1);
 }
 
@@ -203,10 +209,14 @@ int send_pos(char* data){
 }
 
 void start_engine(){
-        fprintf(fp_out, "init\n");
-        fprintf(fp_out, "%d %d\n", WIDTH, HEIGHT);
-        fprintf(fp_out, "begin\n");
-		fflush(fp_out);
+    fprintf(fp_out, "init\n");
+    fprintf(fp_out, "%d %d\n", WIDTH, HEIGHT);
+	lua_getglobal(Lua, "set_pos");
+	lua_call(Lua, 0, 1);
+	fprintf(fp_out, "%s\n", lua_tostring(Lua, -1));
+	lua_pop(Lua, 1);
+    fprintf(fp_out, "begin\n");
+	fflush(fp_out);
 }
 
 
@@ -223,7 +233,7 @@ int main(){
 
 	Lua = luaL_newstate();
 	luaL_openlibs(Lua);
-	luaL_dofile(Lua, "./server/interpretator.lua");
+	luaL_dofile(Lua, "./server/game1.lua");
 
 	NPlayers = 0;
 	start_engine();
@@ -236,6 +246,7 @@ int main(){
 	uv_udp_recv_start(&recv_socket, alloc_buffer, on_read);
 
 	printf("Server started\n");	
+	fflush(stdout);
 	uv_run(loop, UV_RUN_DEFAULT);
 	
 	return 1;

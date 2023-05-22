@@ -39,10 +39,34 @@ Section** sections;
 unsigned int circles_count = 0;
 unsigned int sections_count = 0;
 
+unsigned int **collision_matrix_c_c;
+unsigned int **collision_matrix_c_s;
+
 int init()
 {
     circles = calloc(circles_size, sizeof(Circle*));
     sections = calloc(sections_size, sizeof(Section*));
+
+    collision_matrix_c_c = calloc(circles_size, sizeof(int*));
+    for (int i = 0; i < circles_size; i++)
+    {
+        collision_matrix_c_c[i] = calloc(circles_size, sizeof(int));
+        for (int j = 0; j < circles_size; j++)
+        {
+            collision_matrix_c_c[i][j] = 1;
+        }
+    }
+    
+    collision_matrix_c_s = calloc(circles_size, sizeof(int*));
+    for (int i = 0; i < circles_size; i++)
+    {
+        collision_matrix_c_s[i] = calloc(sections_size, sizeof(int));
+        for (int j = 0; j < sections_size; j++)
+        {
+            collision_matrix_c_s[i][j] = 1;
+        }
+    }
+
     return 0;
 }
 
@@ -55,10 +79,50 @@ int add_circle(double r, double m, double x, double y, double vx, double vy)
     {
         circles_size *= 2;
         circles = realloc(circles, sizeof(Circle*) * circles_size);
+
+        collision_matrix_c_c = realloc(collision_matrix_c_c, sizeof(int*) * circles_size);
+
+        for (int i = circles_size / 2; i < circles_size; i++)
+        {
+            collision_matrix_c_c[i] = calloc(sizeof(int*), circles_size);
+            for (int j = 0; j < circles_size; j++)
+            {
+                collision_matrix_c_c[i][j] = 1;
+            }
+        }
+
+        for (int i = 0; i < circles_size / 2; i++)
+        {
+            collision_matrix_c_c[i] = realloc(collision_matrix_c_c[i], sizeof(int) * circles_size);
+            for (int j = circles_size / 2; j < circles_size; j++)
+            {
+                collision_matrix_c_c[i][j] = 1;
+            }
+        }
+
+        collision_matrix_c_s = realloc(collision_matrix_c_s, sizeof(int*) * circles_size);
+        for (int i = circles_size / 2; i < circles_size; i++)
+        {
+            collision_matrix_c_s[i] = calloc(sections_size, sizeof(int));
+            for (int j = 0; j < sections_size; j++)
+            {
+                collision_matrix_c_s[i][j] = 1;
+            }
+        }
+
+/*
+        for (int i = circles_count / 2; i < circles_count; i++)
+        {
+            collision_matrix_c_s[i] = calloc(sections_size, sizeof(int));
+            for (int j = 0; j < sections_size; j++)
+            {
+                collision_matrix_c_s[i][j] = 1;
+            }
+        }*/
     }
 
     circles[circles_count++] = circle;
-    return circles_count;
+    return circles_count - 1;
 }
 
 int del_circle(int id)
@@ -76,10 +140,18 @@ int add_section(double x1, double y1, double x2, double y2)
     {
         sections_size *= 2;
         sections = realloc(sections, sizeof(Circle*) * sections_size);
+        for (int i = 0; i < circles_size; i++)
+        {
+            collision_matrix_c_s[i] = realloc(collision_matrix_c_s[i], sizeof(int) * sections_size);
+            for (int j = sections_size / 2; j < sections_size; j++)
+            {
+                collision_matrix_c_s[i][j] = 1;
+            }
+        }
     }
 
     sections[sections_count++] = section;
-    return sections_count;
+    return sections_count - 1;
 }
 
 int del_section(int id)
@@ -95,7 +167,6 @@ void set_borders(double x1, double y1, double x2, double y2)
         for (int i = 0; i < 4; i++)
         del_section(border_id + i);
     }
-    fflush(stdout);
     border_id = add_section(x1, y1, x2, y1);
     add_section(x1, y1, x1, y2);
     add_section(x2, y2, x2, y1);
@@ -103,6 +174,17 @@ void set_borders(double x1, double y1, double x2, double y2)
     fflush(stdout);
 }
 
+void set_collision_c_c(int x, int y, int col)
+{
+    printf("setting %d %d %d\n", x, y, col);
+    collision_matrix_c_c[x][y] = col;
+    collision_matrix_c_c[y][x] = col;
+}
+
+void set_collision_c_s(int x, int y, int col)
+{
+    collision_matrix_c_s[x][y] = col;
+}
 
 void step(double delta_max)
 {
@@ -117,9 +199,12 @@ void step(double delta_max)
     {
         if (circles[i] == NULL)
             continue;
+
         for (int j = i + 1; j < circles_count; j++)
         {
             if (circles[j] == NULL)
+                continue;
+            if (collision_matrix_c_c[i][j] == 0)
                 continue;
 
             double r = circles[i]->r + circles[j]->r;
@@ -155,6 +240,8 @@ void step(double delta_max)
             continue;
         for (int j = 0; j < sections_count; j++)
         {
+            if (collision_matrix_c_s[i][j] == 0)
+                continue;
             if (sections[j] == NULL)
                 continue;
 
@@ -396,6 +483,18 @@ void free_all()
         free(circles[i]);
     }
     free(circles);
+    for (int i = 0; i < sections_count; i++)
+    {
+        free(sections[i]);
+    }
+    free(sections);
+    for (int i = 0; i < circles_count; i++)
+    {
+        free(collision_matrix_c_c[i]);
+        free(collision_matrix_c_s[i]);
+    }
+    free(collision_matrix_c_c);
+    free(collision_matrix_c_s);
 }
 
 #ifdef DEBUG
