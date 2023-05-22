@@ -8,9 +8,9 @@
 #include "server.h"
 
 
-#define TICK 1
+#define TICK 50
 #define DELAY 1000
-#define IP "192.168.0.108"
+#define IP "127.0.0.1"
 #define PORT 8787
 #define WIDTH 1920
 #define HEIGHT 1080
@@ -155,6 +155,11 @@ void on_send(uv_udp_send_t* req, int status) {
 void on_timer(uv_timer_t* timer){
 	fprintf(fp_out, "end\n");
 	fprintf(fp_out, "begin\n");
+
+	lua_getglobal(Lua, "tick");
+	lua_call(Lua, 0, 1);
+	fprintf(fp_out, "%s\n", lua_tostring(Lua, -1));
+
 	fflush(fp_out);
 	get_pos();
 	send_pos(POS);
@@ -203,10 +208,15 @@ int send_pos(char* data){
 }
 
 void start_engine(){
-        fprintf(fp_out, "init\n");
-        fprintf(fp_out, "%d %d\n", WIDTH, HEIGHT);
-        fprintf(fp_out, "begin\n");
-		fflush(fp_out);
+    fprintf(fp_out, "init\n");
+    fprintf(fp_out, "%d %d\n", WIDTH, HEIGHT);
+	lua_getglobal(Lua, "set_pos");
+	lua_call(Lua, 0, 1);
+	fprintf(fp_out, "%s\n", lua_tostring(Lua, -1));
+	//printf("%s\n", lua_tostring(Lua, -1));
+	lua_pop(Lua, 1);
+    fprintf(fp_out, "begin\n");
+	fflush(fp_out);
 }
 
 
@@ -223,7 +233,7 @@ int main(){
 
 	Lua = luaL_newstate();
 	luaL_openlibs(Lua);
-	luaL_dofile(Lua, "./server/interpretator.lua");
+	luaL_dofile(Lua, "./server/game1.lua");
 
 	NPlayers = 0;
 	start_engine();

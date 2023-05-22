@@ -9,7 +9,7 @@ import numpy as np
 
 global proto
 
-IP = '192.168.0.108'
+IP = '127.0.0.1'
 PORT = 8787
 
 FLAG = False
@@ -66,6 +66,7 @@ sect1 = []
 
 
 def centCO(XY):
+    return XY
     XY1 = [0]*2
     XY1[0] = XY[0] + WIDTH/2
     XY1[1] = XY[1] + HEIGHT/2

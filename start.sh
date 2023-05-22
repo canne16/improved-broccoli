@@ -1,2 +1,2 @@
 #!/bin/sh
-./dvizh_ok_exec & ./server_exec
+./server_exec & ./dvizh_ok_exec
