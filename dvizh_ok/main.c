@@ -8,6 +8,9 @@
 #define max(x, y) (((x) > (y)) ? (x) : (y))
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
+#undef DEBUG
+#define DEBUG_POS
+
 int main()
 {
     int WIDTH, HEIGHT;
@@ -131,10 +134,13 @@ int main()
                     if (strcmp(cmd, "v") == 0)
                     {
                         double old_abs = sqrt(circles[id]->vx * circles[id]->vx + circles[id]->vy * circles[id]->vy);
-                        circles[id]->vx /= old_abs;
-                        circles[id]->vy /= old_abs;
-                        circles[id]->vx *= val;
-                        circles[id]->vy *= val;
+                        if (old_abs > EPS)
+                        {
+                            circles[id]->vx /= old_abs;
+                            circles[id]->vy /= old_abs;
+                            circles[id]->vx *= val;
+                            circles[id]->vy *= val;
+                        }
                     }
                 }
                 if (strcmp(s, "max") == 0)
@@ -179,15 +185,15 @@ int main()
                         circles[id]->vx = min(val, circles[id]->vx);
                     if (strcmp(cmd, "vy") == 0)
                         circles[id]->vy = min(val, circles[id]->vy);
-                    if (strcmp(cmd, "v") == 0)
-                    {
-                        double old_abs = sqrt(circles[id]->vx * circles[id]->vx + circles[id]->vy * circles[id]->vy);
-                        val = min(val, old_abs);
-                        circles[id]->vx /= old_abs;
-                        circles[id]->vy /= old_abs;
-                        circles[id]->vx *= val;
-                        circles[id]->vy *= val;
-                    }
+                    //if (strcmp(cmd, "v") == 0)
+                    //{
+                    //    double old_abs = sqrt(circles[id]->vx * circles[id]->vx + circles[id]->vy * circles[id]->vy);
+                    //    val = min(val, old_abs);
+                    //    circles[id]->vx /= old_abs;
+                    //    circles[id]->vy /= old_abs;
+                    //    circles[id]->vx *= val;
+                    //    circles[id]->vy *= val;
+                    //}
                 }
                 if (strcmp(s, "min") == 0)
                 {
@@ -274,13 +280,17 @@ int main()
             for (int i = 0; i < circles_count; i++)
             {
                 fprintf(f_o, "%d %lf %lf %lf %lf %lf %lf,", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
-                //printf("%d %lf %lf %lf %lf %lf %lf,", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
+                #ifdef DEBUG_POS
+                    printf("%d %lf %lf %lf %lf %lf %lf\n", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
+                #endif
             }
             fprintf(f_o, ";");
             for (int i = 0; i < sections_count; i++)
             {
                 fprintf(f_o, "%d %lf %lf %lf %lf,", sections[i]->id, sections[i]->x1, sections[i]->y1, sections[i]->x2, sections[i]->y2);
-                //printf("%d %lf %lf %lf %lf,", sections[i]->id, sections[i]->x1, sections[i]->y1, sections[i]->x2, sections[i]->y2);
+                #ifdef DEBUG_POS
+                    printf("%d %lf %lf %lf %lf\n", sections[i]->id, sections[i]->x1, sections[i]->y1, sections[i]->x2, sections[i]->y2);
+                #endif
             }
             fprintf(f_o, "\n");
             fflush(f_o);
