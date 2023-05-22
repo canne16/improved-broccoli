@@ -9,7 +9,7 @@ import numpy as np
 
 global proto
 
-IP = '192.168.0.108'
+IP = '192.168.0.49'
 PORT = 8787
 
 FLAG = False
@@ -56,7 +56,7 @@ class figure:
 
         if self.type == 0:
             pygame.draw.circle(screen, self.clr, centCO(self.center), self.R)
-
+        print(circ1)
         if self.type == 1:
             pygame.draw.line(screen, self.clr, centCO(self.center), centCO(self.vorx1y1), 5)
 

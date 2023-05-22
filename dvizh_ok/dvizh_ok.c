@@ -64,8 +64,12 @@ int add_circle(double r, double m, double x, double y, double vx, double vy)
 
 int del_circle(int id)
 {
-    free(circles[id]);
-    circles[id] = NULL;
+    circles[id]->ax = 0;
+    circles[id]->ay = 0;
+    circles[id]->vx = 0;
+    circles[id]->vy = 0;
+    circles[id]->x = 100000;
+    circles[id]->y = 100000;
 }
 
 int add_section(double x1, double y1, double x2, double y2)

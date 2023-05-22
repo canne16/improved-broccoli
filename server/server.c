@@ -10,11 +10,11 @@
 
 #define TICK 1
 #define DELAY 1000
-#define IP "192.168.0.108"
+#define IP "192.168.0.49"
 #define PORT 8787
-#define WIDTH 1900
-#define HEIGHT 1000
-#define CONFIG "CONF 1920 1080 120"
+#define WIDTH 1800
+#define HEIGHT 900
+#define CONFIG "CONF 1800 900 120"
 #define DEFAULT "25.0 1.0 0.0 0.0 0.0 0.0\n"
 
 
@@ -126,6 +126,7 @@ void on_read(uv_udp_t* req, ssize_t nread, const uv_buf_t* buf,	const struct soc
 			fprintf(fp_out, "del_circle\n");
 			fprintf(fp_out, "%d\n", I);
 			fflush(fp_out);
+			
 		} else {
 			client_t* client; 
 			for( client = game.clients; client; client = client->next)

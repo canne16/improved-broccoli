@@ -188,7 +188,9 @@ int main()
                 {
                     int id;
                     fscanf(f_i, "%d", &id);
-                    //del_circle(id);
+                    printf("%d\n", id);
+                    fflush(stdout);
+                    del_circle(id);
                 }
                 if (strcmp(s, "add_section") == 0)
                 {
@@ -210,11 +212,15 @@ int main()
             fflush(stdout);
             for (int i = 0; i < circles_count; i++)
             {
+                if(circles[i]==NULL)
+                    continue;
                 fprintf(f_o, "%d %lf %lf %lf %lf %lf %lf,", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
             }
             fprintf(f_o, ";");
             for (int i = 0; i < sections_count; i++)
             {
+                if(sections[i]==NULL)
+                    continue;
                 fprintf(f_o, "%d %lf %lf %lf %lf,", sections[i]->id, sections[i]->x1, sections[i]->y1, sections[i]->x2, sections[i]->y2);
             }
             fprintf(f_o, "\n");
