@@ -24,3 +24,5 @@ To learn IP of your server write in server's command line:
 '''
 ip addr
 '''
+
+If you only want the player part, install just it

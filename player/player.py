@@ -110,11 +110,9 @@ class Proto(asyncio.DatagramProtocol):
             actwidth = infoObject.current_w*0.8
             actheight = infoObject.current_h*0.8
             global kw
-            global kh
             kw = WIDTH/actwidth
-            kh = HEIGHT/actheight
             WIDTH = actwidth
-            HEIGHT = actheight
+            HEIGHT = HEIGHT/kw
             pygame.display.set_mode((WIDTH, HEIGHT))
             return
         
@@ -126,16 +124,16 @@ class Proto(asyncio.DatagramProtocol):
                 if s == 0:
                     if fig[0] >= len(circ1):
                         circ1.append(figure(0, [0,0], 100, list(np.random.choice(range(256), size=3)), 1, [10,10]))
-                    circ1[int(fig[0])].R = fig[1]
+                    circ1[int(fig[0])].R = fig[1]/kw
                     circ1[int(fig[0])].mass = fig[2]
-                    circ1[int(fig[0])].center = [fig[3]/kw,fig[4]/kh]
-                    circ1[int(fig[0])].vorx1y1 = [fig[5]/kw,fig[6]/kh]
+                    circ1[int(fig[0])].center = [fig[3]/kw,fig[4]/kw]
+                    circ1[int(fig[0])].vorx1y1 = [fig[5]/kw,fig[6]/kw]
                 elif s == 1:
                     if fig[0] >= len(sect1):
                         sect1.append(figure(1, [fig[1],fig[2]], 100, BLACK, 1, [fig[3],fig[4]]))
 
-                    sect1[int(fig[0])].center = [fig[1]/kw,fig[2]/kh]
-                    sect1[int(fig[0])].vorx1y1 = [fig[3]/kw,fig[4]/kh]
+                    sect1[int(fig[0])].center = [fig[1]/kw,fig[2]/kw]
+                    sect1[int(fig[0])].vorx1y1 = [fig[3]/kw,fig[4]/kw]
                     
 
 async def initialize(transport, proto):
