@@ -10,7 +10,10 @@ import numpy as np
 global proto
 
 #IP = '192.168.0.49'
-IP = '127.0.0.1'
+print("Please, enter the server's IP\nIf you want to run on 127.0.0.1 press enter")
+IP = str(input())
+if IP == '':
+    IP = '127.0.0.1'
 PORT = 8787
 
 FLAG = False
