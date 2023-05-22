@@ -1,7 +1,12 @@
-dict =
-{
-  ['+s'] = {"ADD ", " Y ", 0.1},
-}
+w0 = 0
+a0 = 0
+s0 = 0
+d0 = 0
+w1 = 0
+a1 = 0
+s1 = 0
+d1 = 0
+
 
 function set_pos()
   return "begin\n"..
@@ -18,35 +23,95 @@ end
 function translate(index, C)
   if index == 0 then
     if C == "+s" then
-      return "add 0 vy 1"
+      s0 = 1
     end
     if C == "+w" then
-      return "add 0 vy -1"
+      w0 = 1
     end
     if C == "+a" then
-      return "add 0 vx -1"
+      a0 = 1
     end
     if C == "+d" then
-      return "add 0 vx 1"
+      d0 = 1
+    end
+    if C == "-s" then
+      s0 = 0
+    end
+    if C == "-w" then
+      w0 = 0
+    end
+    if C == "-a" then
+      a0 = 0
+    end
+    if C == "-d" then
+      d0 = 0
     end
   end
   if index == 1 then
     if C == "+s" then
-      return "add 1 vy 1"
+      s1 = 1
     end
     if C == "+w" then
-      return "add 1 vy -1"
+      w1 = 1
     end
     if C == "+a" then
-      return "add 1 vx -1"
+      a1 = 1
     end
     if C == "+d" then
-      return "add 1 vx 1"
+      d1 = 1
+    end
+    if C == "-s" then
+      s1 = 0
+    end
+    if C == "-w" then
+      w1 = 0
+    end
+    if C == "-a" then
+      a1 = 0
+    end
+    if C == "-d" then
+      d1 = 0
     end
   end
 end
 
 function tick()
-  return "max 0 x 400\n"..
+  res = "max 0 x 400\n"..
   "min 1 x 1520"
+  dv = "0.5"
+
+  if s0 == 1 then
+    res = res.."add 0 vy "..dv.."\n"..
+    "max 0 v 10"
+  end
+  if w0 == 1 then
+    res = res.."add 0 vy -"..dv.."\n"..
+    "max 0 v 10"
+  end
+  if a0 == 1 then
+    res = res.."add 0 vx -"..dv.."\n"..
+    "max 0 v 10"
+  end
+  if d0 == 1 then
+    res = res.."add 0 vx "..dv.."\n"..
+    "max 0 v 10"
+  end
+  if s1 == 1 then
+    res = res.."add 1 vy "..dv.."\n"..
+    "max 1 v 10"
+  end
+  if w1 == 1 then
+    res = res.."add 1 vy -"..dv.."\n"..
+    "max 1 v 10"
+  end
+  if a1 == 1 then
+    res = res.."add 1 vx -"..dv.."\n"..
+    "max 1 v 10"
+  end
+  if d1 == 1 then
+    res = res.."add 1 vx "..dv.."\n"..
+    "max 1 v 10"
+  end
+
+  return res
 end
