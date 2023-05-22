@@ -31,6 +31,10 @@ dvizh_ok = ctypes.cdll.LoadLibrary("./dvizh_ok.so")
 dvizh_ok.add_circle.argtypes = [ctypes.c_double] * 6
 dvizh_ok.add_section.argtypes = [ctypes.c_double] * 4
 dvizh_ok.set_borders.argtypes = [ctypes.c_double] * 4
+dvizh_ok.set_collision_c_c.argtypes = [ctypes.c_int] * 3
+dvizh_ok.set_collision_c_s.argtypes = [ctypes.c_int] * 3
+
+dvizh_ok.add_section.restype = ctypes.c_int
 
 dvizh_ok.is_null_circle.restype = ctypes.c_int
 dvizh_ok.get_circle_r.restype = ctypes.c_double
@@ -83,6 +87,13 @@ match mode:
             r = randint(3, 30)
             dvizh_ok.add_circle(r, r*r, randint(int(r) + 2, WIDTH - int(r) - 2), randint(int(r) + 2, HEIGHT - int(r) - 2), randint(-50, 50), randint(-50, 50))
         #dvizh_ok.add_section(0, HEIGHT / 2, WIDTH, HEIGHT / 2)
+
+        ind = dvizh_ok.add_circle(100, 100, WIDTH / 2, HEIGHT / 2, 50, 5)
+        for i in range(ctypes.c_int.in_dll(dvizh_ok, "circles_size").value):
+            dvizh_ok.set_collision_c_c(ind, i, 0)
+        #for i in range(ctypes.c_int.in_dll(dvizh_ok, "sections_size").value):
+        #    dvizh_ok.set_collision_c_s(ind, i, 0)
+
     case 3: # diffusion
         TIME_K = 1
         COLORS = [RED, BLUE]
@@ -101,6 +112,7 @@ match mode:
         dvizh_ok.add_circle(30, 1, 100, 100, 5.7, 4.2)
     case 5: # spiral
         TIME_K = 1
+        #MICROSTEPS = 10
         dist = 100
         n_s = 5
         n_c = 400
@@ -113,6 +125,15 @@ match mode:
             v = randint(100, 300)
             phi = randint(0, 2000000) / 1000000
             dvizh_ok.add_circle(2, 1, WIDTH / 2, HEIGHT / 2, v * math.sin(math.pi * phi), v * math.cos(math.pi * phi))
+    case 6:
+        TIME_K = 1
+        n = 400
+        for i in range(n):
+            v = randint(100, 300)
+            phi = randint(0, 2000000) / 1000000
+            dvizh_ok.add_circle(2, 1, WIDTH / 4, HEIGHT / 2, v * math.sin(math.pi * phi), v * math.cos(math.pi * phi))
+        dvizh_ok.add_section(WIDTH / 2, HEIGHT / 2 - 4, WIDTH / 2, 0)
+        dvizh_ok.add_section(WIDTH / 2, HEIGHT / 2 + 4, WIDTH / 2, HEIGHT)
     case _:
         print("Unknowh mode")
         parser.print_help()
@@ -170,7 +191,7 @@ while running:
         y = ctypes.c_double(dvizh_ok.get_circle_y(ctypes.c_int(i))).value
         r = ctypes.c_double(dvizh_ok.get_circle_r(ctypes.c_int(i))).value
 
-        pygame.draw.circle(screen, COLORS[i % len(COLORS)], [x, y], r, 3)
+        pygame.draw.circle(screen, COLORS[i % len(COLORS)], [x, y], abs(r), 3)
     
     for i in range(ctypes.c_int.in_dll(dvizh_ok, "sections_count").value):
         if dvizh_ok.is_null_section(ctypes.c_int(i)) == 1:

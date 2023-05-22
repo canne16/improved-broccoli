@@ -271,6 +271,18 @@ int main()
                     fscanf(f_i, "%d", &id);
                     del_section(id);
                 }
+                if (strcmp(s, "set_collision_c_c") == 0)
+                {
+                    int x, y, id;
+                    fscanf(f_i, "%d %d %d", &x, &y, &id);
+                    set_collision_c_c(x, y, id);
+                }
+                if (strcmp(s, "set_collision_c_s") == 0)
+                {
+                    int x, y, id;
+                    fscanf(f_i, "%d %d %d", &x, &y, &id);
+                    set_collision_c_s(x, y, id);
+                }
 
                 fscanf(f_i, "%s", s);
             }
