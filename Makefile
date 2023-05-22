@@ -10,7 +10,6 @@ dvizh_ok_exec: ./dvizh_ok/dvizh_ok.c ./dvizh_ok/main.c
 	gcc ./dvizh_ok/main.c -o dvizh_ok_exec -lm
 
 clean:
-	rm dvizh_ok/dvizh_ok.so
 	rm dvizh_ok_exec
 	rm server_exec
 	rm fp_eng_ser fp_ser_eng

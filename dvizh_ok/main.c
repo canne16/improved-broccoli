@@ -9,7 +9,6 @@
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
 #undef DEBUG
-#define DEBUG_POS
 
 int main()
 {
@@ -95,10 +94,14 @@ int main()
                     if (strcmp(cmd, "v") == 0)
                     {
                         double old_abs = sqrt(circles[id]->vx * circles[id]->vx + circles[id]->vy * circles[id]->vy);
-                        circles[id]->vx /= old_abs;
-                        circles[id]->vy /= old_abs;
-                        circles[id]->vx *= (val + old_abs);
-                        circles[id]->vy *= (val + old_abs);
+                        if (old_abs > 0)
+                        {
+                            double new_abs = max(0, old_abs + val);
+                            circles[id]->vx /= old_abs;
+                            circles[id]->vy /= old_abs;
+                            circles[id]->vx *= new_abs;
+                            circles[id]->vy *= new_abs;
+                        }
                     }
                 }
                 if (strcmp(s, "set") == 0)
@@ -252,6 +255,8 @@ int main()
                     int id;
                     fscanf(f_i, "%d", &id);
                     del_circle(id);
+                    printf("AAAAA\n");
+                    fflush(stdout);
                 }
                 if (strcmp(s, "add_section") == 0)
                 {
@@ -285,6 +290,8 @@ int main()
             fflush(stdout);
             for (int i = 0; i < circles_count; i++)
             {
+                if (circles[i] == NULL)
+                    continue;
                 fprintf(f_o, "%d %lf %lf %lf %lf %lf %lf,", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
                 #ifdef DEBUG_POS
                     printf("%d %lf %lf %lf %lf %lf %lf\n", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
@@ -293,6 +300,8 @@ int main()
             fprintf(f_o, ";");
             for (int i = 0; i < sections_count; i++)
             {
+                if (sections[i] == NULL)
+                    continue;
                 fprintf(f_o, "%d %lf %lf %lf %lf,", sections[i]->id, sections[i]->x1, sections[i]->y1, sections[i]->x2, sections[i]->y2);
                 #ifdef DEBUG_POS
                     printf("%d %lf %lf %lf %lf\n", sections[i]->id, sections[i]->x1, sections[i]->y1, sections[i]->x2, sections[i]->y2);

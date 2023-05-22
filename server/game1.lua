@@ -80,7 +80,10 @@ function translate(index, C)
 end
 
 function tick()
-  res = ""
+  res = "add 0 v -0.1\n"..
+        "add 1 v -0.1\n"..
+        "add 2 v -0.1\n"
+  --res = ""
   dv = "0.5"
 
   if s0 == 1 then

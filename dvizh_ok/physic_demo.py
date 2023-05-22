@@ -86,13 +86,6 @@ match mode:
         for i in range(n):
             r = randint(3, 30)
             dvizh_ok.add_circle(r, r*r, randint(int(r) + 2, WIDTH - int(r) - 2), randint(int(r) + 2, HEIGHT - int(r) - 2), randint(-50, 50), randint(-50, 50))
-        #dvizh_ok.add_section(0, HEIGHT / 2, WIDTH, HEIGHT / 2)
-
-        ind = dvizh_ok.add_circle(100, 100, WIDTH / 2, HEIGHT / 2, 50, 5)
-        for i in range(ctypes.c_int.in_dll(dvizh_ok, "circles_size").value):
-            dvizh_ok.set_collision_c_c(ind, i, 0)
-        #for i in range(ctypes.c_int.in_dll(dvizh_ok, "sections_size").value):
-        #    dvizh_ok.set_collision_c_s(ind, i, 0)
 
     case 3: # diffusion
         TIME_K = 1
@@ -132,8 +125,8 @@ match mode:
             v = randint(100, 300)
             phi = randint(0, 2000000) / 1000000
             dvizh_ok.add_circle(2, 1, WIDTH / 4, HEIGHT / 2, v * math.sin(math.pi * phi), v * math.cos(math.pi * phi))
-        dvizh_ok.add_section(WIDTH / 2, HEIGHT / 2 - 4, WIDTH / 2, 0)
-        dvizh_ok.add_section(WIDTH / 2, HEIGHT / 2 + 4, WIDTH / 2, HEIGHT)
+        dvizh_ok.add_section(WIDTH / 2, HEIGHT / 2 - 10, WIDTH / 2, 0)
+        dvizh_ok.add_section(WIDTH / 2, HEIGHT / 2 + 10, WIDTH / 2, HEIGHT)
     case _:
         print("Unknowh mode")
         parser.print_help()
