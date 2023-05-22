@@ -7,10 +7,12 @@ a1 = 0
 s1 = 0
 d1 = 0
 
+width = 960 * 2
+height = 540 * 2
 
 function set_pos()
   return "begin\n"..
-  "add_circle 60 15 100 540 0 0\n"..
+  "add_circle 60 15 100 "..tostring(height/2).." 0 0\n"..
   "add_circle 60 15 1820 540 0 0\n"..
   "add_circle 30 1 960 540 0 0\n"..
   "add_section 960 0 960 1080\n"..
@@ -83,35 +85,35 @@ function tick()
 
   if s0 == 1 then
     res = res.."add 0 vy "..dv.."\n"..
-    "max 0 v 10"
+    "max 0 v 10\n"
   end
   if w0 == 1 then
     res = res.."add 0 vy -"..dv.."\n"..
-    "max 0 v 10"
+    "max 0 v 10\n"
   end
   if a0 == 1 then
     res = res.."add 0 vx -"..dv.."\n"..
-    "max 0 v 10"
+    "max 0 v 10\n"
   end
   if d0 == 1 then
     res = res.."add 0 vx "..dv.."\n"..
-    "max 0 v 10"
+    "max 0 v 10\n"
   end
   if s1 == 1 then
     res = res.."add 1 vy "..dv.."\n"..
-    "max 1 v 10"
+    "max 1 v 10\n"
   end
   if w1 == 1 then
     res = res.."add 1 vy -"..dv.."\n"..
-    "max 1 v 10"
+    "max 1 v 10\n"
   end
   if a1 == 1 then
     res = res.."add 1 vx -"..dv.."\n"..
-    "max 1 v 10"
+    "max 1 v 10\n"
   end
   if d1 == 1 then
     res = res.."add 1 vx "..dv.."\n"..
-    "max 1 v 10"
+    "max 1 v 10\n"
   end
 
   return res
