@@ -33,7 +33,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game on!")
 clock = pygame.time.Clock()
 Data = []
-KeyList = "wasdop"
+KeyList = "wasdopkl"
 ###########################################################################
 
 

@@ -61,9 +61,11 @@ int main()
                     if (strcmp(cmd, "y") == 0)
                         circles[id]->y += val;
                     if (strcmp(cmd, "r") == 0)
-                        circles[id]->r += val;
+                        if(circles[id]->r + val > 0)
+                            circles[id]->r += val;
                     if (strcmp(cmd, "m") == 0)
-                        circles[id]->m += val;
+                        if(circles[id]->m + val > 0)
+                            circles[id]->m += val;
                     if (strcmp(cmd, "X") == 0)
                         if(circles[id]->ax*val <= 0)
                             circles[id]->ax += val;
