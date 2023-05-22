@@ -185,15 +185,18 @@ int main()
                         circles[id]->vx = min(val, circles[id]->vx);
                     if (strcmp(cmd, "vy") == 0)
                         circles[id]->vy = min(val, circles[id]->vy);
-                    //if (strcmp(cmd, "v") == 0)
-                    //{
-                    //    double old_abs = sqrt(circles[id]->vx * circles[id]->vx + circles[id]->vy * circles[id]->vy);
-                    //    val = min(val, old_abs);
-                    //    circles[id]->vx /= old_abs;
-                    //    circles[id]->vy /= old_abs;
-                    //    circles[id]->vx *= val;
-                    //    circles[id]->vy *= val;
-                    //}
+                    if (strcmp(cmd, "v") == 0)
+                    {
+                        double old_abs = sqrt(circles[id]->vx * circles[id]->vx + circles[id]->vy * circles[id]->vy);
+                        if (old_abs > EPS)
+                        {
+                            val = min(val, old_abs);
+                            circles[id]->vx /= old_abs;
+                            circles[id]->vy /= old_abs;
+                            circles[id]->vx *= val;
+                            circles[id]->vy *= val;
+                        }
+                    }
                 }
                 if (strcmp(s, "min") == 0)
                 {
@@ -237,15 +240,6 @@ int main()
                         circles[id]->vx = max(val, circles[id]->vx);
                     if (strcmp(cmd, "vy") == 0)
                         circles[id]->vy = max(val, circles[id]->vy);
-                    if (strcmp(cmd, "v") == 0)
-                    {
-                        double old_abs = sqrt(circles[id]->vx * circles[id]->vx + circles[id]->vy * circles[id]->vy);
-                        val = max(val, old_abs);
-                        circles[id]->vx /= old_abs;
-                        circles[id]->vy /= old_abs;
-                        circles[id]->vx *= val;
-                        circles[id]->vy *= val;
-                    }
                 }
                 if (strcmp(s, "add_circle") == 0)
                 {
