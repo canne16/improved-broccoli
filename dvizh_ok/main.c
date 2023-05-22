@@ -65,9 +65,11 @@ int main()
                     if (strcmp(cmd, "m") == 0)
                         circles[id]->m += val;
                     if (strcmp(cmd, "X") == 0)
-                        circles[id]->vx += val;
+                        if(circles[id]->ax*val <= 0)
+                            circles[id]->ax += val;
                     if (strcmp(cmd, "Y") == 0)
-                        circles[id]->vy += val;
+                        if(circles[id]->ay*val <= 0)
+                            circles[id]->ay += val;
                     if (strcmp(cmd, "v") == 0)
                     {
                         double old_abs = sqrt(circles[id]->vx * circles[id]->vx + circles[id]->vy * circles[id]->vy);
@@ -186,7 +188,7 @@ int main()
                 {
                     int id;
                     fscanf(f_i, "%d", &id);
-                    del_circle(id);
+                    //del_circle(id);
                 }
                 if (strcmp(s, "add_section") == 0)
                 {

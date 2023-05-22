@@ -119,9 +119,9 @@ void step(double delta_max)
         if (circles[i] == NULL)
             continue;
 
-        if((circles[i]->vx*circles[i]->ax >= 0 && abs(circles[i]->vx) < 1) || circles[i]->vx*circles[i]->ax < 0)    
+        if((circles[i]->vx*circles[i]->ax >= 0 && abs(circles[i]->vx) < 0.4) || circles[i]->vx*circles[i]->ax < 0)    
             circles[i]->vx += circles[i]->ax;
-        if((circles[i]->vy*circles[i]->ay >= 0 && abs(circles[i]->vy) < 1) || circles[i]->vy*circles[i]->ay < 0)    
+        if((circles[i]->vy*circles[i]->ay >= 0 && abs(circles[i]->vy) < 0.4) || circles[i]->vy*circles[i]->ay < 0)    
             circles[i]->vy += circles[i]->ay;
 
         for (int j = i + 1; j < circles_count; j++)

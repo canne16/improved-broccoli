@@ -12,8 +12,8 @@
 #define DELAY 1000
 #define IP "192.168.0.108"
 #define PORT 8787
-#define WIDTH 1000
-#define HEIGHT 800
+#define WIDTH 1900
+#define HEIGHT 1000
 #define CONFIG "CONF 1920 1080 120"
 #define DEFAULT "25.0 1.0 0.0 0.0 0.0 0.0\n"
 
@@ -211,7 +211,11 @@ void start_engine(){
         fprintf(fp_out, "%d %d\n", WIDTH, HEIGHT);
         fprintf(fp_out, "begin\n");
 		fprintf(fp_out, "add_section\n");
-		fprintf(fp_out, "300.0 300.0 -300.0 300.0\n");
+		fprintf(fp_out, "-236.0 300.0 -100.0 -50.0\n");
+		fprintf(fp_out, "add_section\n");
+		fprintf(fp_out, "300.0 100.0 180.0 50.0\n");
+		fprintf(fp_out, "add_section\n");
+		fprintf(fp_out, "-70.0 -300.0 100.0 -250.0\n");
 		fflush(fp_out);
 }
 
