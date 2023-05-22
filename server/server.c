@@ -12,9 +12,10 @@
 #define DELAY 1000
 #define IP "192.168.0.108"
 #define PORT 8787
-#define WIDTH 1920
-#define HEIGHT 1080
+#define WIDTH 1000
+#define HEIGHT 800
 #define CONFIG "CONF 1920 1080 120"
+#define DEFAULT "25.0 1.0 0.0 0.0 0.0 0.0\n"
 
 
 uv_loop_t *loop;        //  цикл для обработки событий
@@ -70,7 +71,9 @@ void add_client(const struct sockaddr* addr) {
 	send_pos(CONF);
 	printf("Adding client with index %d\n", client->index);		//	
 	fflush(stdout);
-	fprintf(fp_out, "player %d\n", client->index);
+	fprintf(fp_out, "add_circle\n");
+	fprintf(fp_out, DEFAULT);
+	//fprintf(fp_out, "max\n%d v 1.0\n", client->index);
 	fflush(fp_out);
 }
 
@@ -84,7 +87,7 @@ int remove_client(const struct sockaddr* addr) {
 		if (!memcmp(&client->addr, addr, sizeof(struct sockaddr_in)) ) {
 			I = client->index;
 			printf("Client %d to be removed\n", I);
-			fflush(fp_out);
+			fflush(stdout);
 			if ( prev ) prev->next =client->next;
 			else game.clients = client->next;
 			free(client->buf.base);
@@ -118,11 +121,11 @@ void on_read(uv_udp_t* req, ssize_t nread, const uv_buf_t* buf,	const struct soc
 				fflush(stdout);
 				lua_close(Lua);
 				fprintf(fp_out, "exit\n");
-				fflush(stdout);
+				fflush(fp_out);
 			}
-			fprintf(fp_out, "remove\n");
+			fprintf(fp_out, "del_circle\n");
 			fprintf(fp_out, "%d\n", I);
-			fflush(stdout);
+			fflush(fp_out);
 		} else {
 			client_t* client; 
 			for( client = game.clients; client; client = client->next)
@@ -172,6 +175,7 @@ void interpret(int index, char* comm){
 	lua_call(Lua, 2, 1);
 	//printf("%s\n", lua_tostring(Lua, -1));
 	fprintf(fp_out, "%s\n", lua_tostring(Lua, -1));
+	fflush(fp_out);
 	lua_pop(Lua, 1);
 }
 
@@ -206,6 +210,8 @@ void start_engine(){
         fprintf(fp_out, "init\n");
         fprintf(fp_out, "%d %d\n", WIDTH, HEIGHT);
         fprintf(fp_out, "begin\n");
+		fprintf(fp_out, "add_section\n");
+		fprintf(fp_out, "300.0 300.0 -300.0 300.0\n");
 		fflush(fp_out);
 }
 
@@ -236,6 +242,7 @@ int main(){
 	uv_udp_recv_start(&recv_socket, alloc_buffer, on_read);
 
 	printf("Server started\n");	
+	fflush(stdout);
 	uv_run(loop, UV_RUN_DEFAULT);
 	
 	return 1;

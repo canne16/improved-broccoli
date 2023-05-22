@@ -23,6 +23,8 @@ typedef struct _Circle {
     double y;
     double vx;
     double vy;
+    double ax;
+    double ay;
 } Circle;
 
 typedef struct _Section {
@@ -50,16 +52,15 @@ int add_circle(double r, double m, double x, double y, double vx, double vy)
 {
     Circle* circle = calloc(1, sizeof(Circle));
     *circle = (Circle){circles_count, r, m, x, y, vx, vy};
-
     if (circles_size == circles_count + 1)
     {
         circles_size *= 2;
         circles = realloc(circles, sizeof(Circle*) * circles_size);
     }
-
     circles[circles_count++] = circle;
+    fflush(stdout);
     return circles_count;
-}
+} 
 
 int del_circle(int id)
 {
@@ -103,7 +104,6 @@ void set_borders(double x1, double y1, double x2, double y2)
     fflush(stdout);
 }
 
-
 void step(double delta_max)
 {
     if (delta_max <= 0)
@@ -112,11 +112,18 @@ void step(double delta_max)
     double dt_min = delta_max, dt = delta_max;
     int i_min = -1, j_min = -1;
     int type = -1; // -1 - undefined, 1 - circles+circles, 2 - circle+section, 3 - circle+section_end1, 4-circle+section_end2
+    
 
     for (int i = 0; i < circles_count; i++)
     {
         if (circles[i] == NULL)
             continue;
+
+        if((circles[i]->vx*circles[i]->ax >= 0 && abs(circles[i]->vx) < 1) || circles[i]->vx*circles[i]->ax < 0)    
+            circles[i]->vx += circles[i]->ax;
+        if((circles[i]->vy*circles[i]->ay >= 0 && abs(circles[i]->vy) < 1) || circles[i]->vy*circles[i]->ay < 0)    
+            circles[i]->vy += circles[i]->ay;
+
         for (int j = i + 1; j < circles_count; j++)
         {
             if (circles[j] == NULL)

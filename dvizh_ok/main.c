@@ -16,7 +16,7 @@ int main()
     FILE* f_o = fopen("fp_eng_ser", "w");
     char *s = calloc(sizeof(char), 256);
     char cmd[32];
-    printf("Starting!");
+    printf("Starting!\n");
     fflush(stdout);
     while (1)
     {
@@ -28,34 +28,28 @@ int main()
             fflush(stdout);
             free_all();
             init();
-            set_borders(0, 0, 1920, 1080);
+            set_borders(-WIDTH/2, -HEIGHT/2, WIDTH/2, HEIGHT/2);
             continue;
         }
         if (strcmp(s, "begin") == 0)
-        {
-            printf("begin\n");
-            fflush(stdout);
+            {
+            //printf("begin\n");
+            //fflush(stdout);
             fscanf(f_i, "%s", s);
-            
-            #ifdef DEBUG
-                printf("BEGIN\n");
-            #endif
+            if (strcmp(s, "exit") == 0)
+            {
+                printf("Finishing...\n");
+                break;
+            }
 
             while (strcmp(s, "end") != 0)
             {
-                #ifdef DEBUG
-                    printf("%s ", s);
-                #endif
-
+                
                 if (strcmp(s, "add") == 0)
                 {
                     int id;
                     double val;
                     fscanf(f_i, "%d %s %lf", &id, cmd, &val);
-
-                    #ifdef DEBUG
-                        printf("%d %lf\n", id, val);
-                    #endif
 
                     if (id < 0 || id > circles_count)
                     {
@@ -83,15 +77,11 @@ int main()
                         circles[id]->vy *= (val + old_abs);
                     }
                 }
-                if (strcmp(s, "SET") == 0)
+                if (strcmp(s, "set") == 0)
                 {
                     int id;
                     double val;
                     fscanf(f_i, "%d %s %lf", &id, cmd, &val);
-
-                    #ifdef DEBUG
-                        printf("%d %lf\n", id, val);
-                    #endif
 
                     if (id < 0 || id > circles_count)
                     {
@@ -107,9 +97,9 @@ int main()
                     if (strcmp(cmd, "m") == 0)
                         circles[id]->m = val;
                     if (strcmp(cmd, "X") == 0)
-                        circles[id]->vx = val;
+                        circles[id]->ax = val;
                     if (strcmp(cmd, "Y") == 0)
-                        circles[id]->vy = val;
+                        circles[id]->ay = val;
                     if (strcmp(cmd, "v") == 0)
                     {
                         double old_abs = sqrt(circles[id]->vx * circles[id]->vx + circles[id]->vy * circles[id]->vy);
@@ -124,10 +114,6 @@ int main()
                     int id;
                     double val;
                     fscanf(f_i, "%d %s %lf", &id, cmd, &val);
-
-                    #ifdef DEBUG
-                        printf("%d %lf\n", id, val);
-                    #endif
 
                     if (id < 0 || id > circles_count)
                     {
@@ -162,10 +148,6 @@ int main()
                     double val;
                     fscanf(f_i, "%d %s %lf", &id, cmd, &val);
 
-                    #ifdef DEBUG
-                        printf("%d %lf\n", id, val);
-                    #endif
-
                     if (id < 0 || id > circles_count)
                     {
                         continue;
@@ -196,8 +178,9 @@ int main()
                 if (strcmp(s, "add_circle") == 0)
                 {
                     double r, m, x, y, vx, vy;
-                    fscanf(f_i, "%lf %lf %lf %lf %lf %lf", &r, &m, &x, &y, &vx, &vy);
+                        fscanf(f_i, "%lf %lf %lf %lf %lf %lf", &r, &m, &x, &y, &vx, &vy);
                     add_circle(r, m, x, y, vx, vy);
+
                 }
                 if (strcmp(s, "del_circle") == 0)
                 {
@@ -228,16 +211,13 @@ int main()
                 fprintf(f_o, "%d %lf %lf %lf %lf %lf %lf,", circles[i]->id, circles[i]->r, circles[i]->m, circles[i]->x, circles[i]->y, circles[i]->vx, circles[i]->vy);
             }
             fprintf(f_o, ";");
-            for (int i = 0; i < circles_count; i++)
+            for (int i = 0; i < sections_count; i++)
             {
                 fprintf(f_o, "%d %lf %lf %lf %lf,", sections[i]->id, sections[i]->x1, sections[i]->y1, sections[i]->x2, sections[i]->y2);
             }
             fprintf(f_o, "\n");
             fflush(f_o);
 
-            #ifdef DEBUG
-                printf("END\n");
-            #endif
         }
     }
     fclose(f_i);
