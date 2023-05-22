@@ -7,19 +7,20 @@ a1 = 0
 s1 = 0
 d1 = 0
 
-width = 960 * 2
-height = 540 * 2
+width = 960
+height = 540
 
 function set_pos()
   return "begin\n"..
-  "add_circle 60 15 100 "..tostring(height/2).." 0 0\n"..
-  "add_circle 60 15 1820 540 0 0\n"..
-  "add_circle 30 1 960 540 0 0\n"..
-  "add_section 960 0 960 1080\n"..
-  "add_section 0 0 0 1080\n"..
-  "add_section 0 0 1920 0\n"..
-  "add_section 1920 1080 0 1080\n"..
-  "add_section 1920 1080 1920 0\n"..
+  "set_collision_c_s 2 0\n"..
+  "add_circle 60 15 "..tostring(100 - width / 2).." 0 0 0\n"..
+  "add_circle 60 15 "..tostring(width / 2 - 100).." 0 0 0\n"..
+  "add_circle 30 1 0 0 0 0\n"..
+  "add_section 0 "..tostring(0+height / 2).." 0 "..tostring(0-height / 2).."\n"..
+  "add_section "..tostring(0+width / 2).." "..tostring(0+height / 2).." "..tostring(0+width / 2).." "..tostring(0-height / 2).."\n"..
+  "add_section "..tostring(0+width / 2).." "..tostring(0+height / 2).." "..tostring(0-width / 2).." "..tostring(0+height / 2).."\n"..
+  "add_section "..tostring(0-width / 2).." "..tostring(0-height / 2).." "..tostring(0+width / 2).." "..tostring(0-height / 2).."\n"..
+  "add_section "..tostring(0-width / 2).." "..tostring(0-height / 2).." "..tostring(0-width / 2).." "..tostring(0+height / 2).."\n"..
   "set_collision_c_s 2 0\n"..
   "end"
 end
@@ -87,7 +88,8 @@ function tick()
   dv = "0.5"
 
   if s0 == 1 then
-    res = res.."add 0 vy "..dv.."\n"..
+    res = res..
+    "add 0 vy "..dv.."\n"..
     "max 0 v 10\n"
   end
   if w0 == 1 then

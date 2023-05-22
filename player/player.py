@@ -67,7 +67,7 @@ sect1 = []
 
 
 def centCO(XY):
-    return XY
+    #return XY
     XY1 = [0]*2
     XY1[0] = XY[0] + WIDTH/2
     XY1[1] = XY[1] + HEIGHT/2
