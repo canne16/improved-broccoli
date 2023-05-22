@@ -56,7 +56,6 @@ class figure:
 
         if self.type == 0:
             pygame.draw.circle(screen, self.clr, centCO(self.center), self.R)
-        print(circ1)
         if self.type == 1:
             pygame.draw.line(screen, self.clr, centCO(self.center), centCO(self.vorx1y1), 5)
 
