@@ -3,7 +3,7 @@
 #include <math.h>
 #include <string.h>
 
-#define TICK 1
+#define TICK 0.01
 
 #define max(x, y) (((x) > (y)) ? (x) : (y))
 #define min(x, y) (((x) < (y)) ? (x) : (y))

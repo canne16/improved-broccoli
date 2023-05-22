@@ -10,7 +10,8 @@ import numpy as np
 global proto
 
 #IP = '192.168.0.49'
-IP = '127.0.0.1'
+#IP = '127.0.0.1'
+IP = "192.168.0.153"
 PORT = 8787
 
 FLAG = False
