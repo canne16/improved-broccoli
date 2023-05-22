@@ -6,3 +6,5 @@ dvizh_ok_exec
 server_exec
 fp_eng_ser
 fp_ser_eng
+pipe_read.py
+pipe_write.py
