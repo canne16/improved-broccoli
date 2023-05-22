@@ -32,6 +32,18 @@ dvizh_ok.add_circle.argtypes = [ctypes.c_double] * 6
 dvizh_ok.add_section.argtypes = [ctypes.c_double] * 4
 dvizh_ok.set_borders.argtypes = [ctypes.c_double] * 4
 
+dvizh_ok.is_null_circle.restype = ctypes.c_int
+dvizh_ok.get_circle_r.restype = ctypes.c_double
+dvizh_ok.get_circle_m.restype = ctypes.c_double
+dvizh_ok.get_circle_x.restype = ctypes.c_double
+dvizh_ok.get_circle_y.restype = ctypes.c_double
+dvizh_ok.get_circle_vx.restype = ctypes.c_double
+dvizh_ok.get_circle_vy.restype = ctypes.c_double
+dvizh_ok.get_section_x1.restype = ctypes.c_double
+dvizh_ok.get_section_y1.restype = ctypes.c_double
+dvizh_ok.get_section_x2.restype = ctypes.c_double
+dvizh_ok.get_section_y2.restype = ctypes.c_double
+
 dvizh_ok.init()
 dvizh_ok.set_borders(0, 0, WIDTH, HEIGHT)
 
@@ -41,7 +53,7 @@ parser = argparse.ArgumentParser(
                     description="Demonstration of physic engine written by vlad_cool for MIPT project")
 
 parser.add_argument("-m", "--mode", type=int, default=0,
-                    help="MODES: 0 - Brownian motion, 1 - Wave, 2 - chaotic, 3 - diffusion, 4 - screensaver")
+                    help="MODES: 0 - Brownian motion, 1 - Wave, 2 - chaotic, 3 - diffusion, 4 - screensaver, 5 - spiral")
 
 args = parser.parse_args()
 mode = args.mode
@@ -83,29 +95,28 @@ match mode:
                 dvizh_ok.add_circle(r, r*r, WIDTH / n_w * (j+0.5), HEIGHT / n_h * (i+0.5), randint(-50, 50), randint(-50, 50))
                 j = k + n_w // 2
                 dvizh_ok.add_circle(r, r*r, WIDTH / n_w * (j+0.5), HEIGHT / n_h * (i+0.5), randint(-50, 50), randint(-50, 50))
-    case 4: # Screensaver
+    case 4: # screensaver
         TIME_K = 10
         COLORS = [RED]
         dvizh_ok.add_circle(30, 1, 100, 100, 5.7, 4.2)
-    case 5:
+    case 5: # spiral
         TIME_K = 1
-        pass
+        dist = 100
+        n_s = 5
+        n_c = 400
+        for i in range(n_s):
+            dvizh_ok.add_section(dist * i, dist * i, WIDTH - dist * i, dist * i)
+            dvizh_ok.add_section(WIDTH - dist * i, dist * i, WIDTH - dist * i, HEIGHT - dist * i)
+            dvizh_ok.add_section(WIDTH - dist * i, HEIGHT - dist * i, dist * (i + 1), HEIGHT - dist * i)
+            dvizh_ok.add_section(dist * (i + 1), HEIGHT - dist * i, dist * (i + 1), dist * (i + 1))
+        for i in range(n_c):
+            v = randint(100, 300)
+            phi = randint(0, 2000000) / 1000000
+            dvizh_ok.add_circle(2, 1, WIDTH / 2, HEIGHT / 2, v * math.sin(math.pi * phi), v * math.cos(math.pi * phi))
     case _:
         print("Unknowh mode")
         parser.print_help()
         exit(0)
-
-dvizh_ok.is_null_circle.restype = ctypes.c_int
-dvizh_ok.get_circle_r.restype = ctypes.c_double
-dvizh_ok.get_circle_m.restype = ctypes.c_double
-dvizh_ok.get_circle_x.restype = ctypes.c_double
-dvizh_ok.get_circle_y.restype = ctypes.c_double
-dvizh_ok.get_circle_vx.restype = ctypes.c_double
-dvizh_ok.get_circle_vy.restype = ctypes.c_double
-dvizh_ok.get_section_x1.restype = ctypes.c_double
-dvizh_ok.get_section_y1.restype = ctypes.c_double
-dvizh_ok.get_section_x2.restype = ctypes.c_double
-dvizh_ok.get_section_y2.restype = ctypes.c_double
 
 ##### GUI
 
