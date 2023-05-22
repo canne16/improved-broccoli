@@ -1,6 +1,8 @@
+**running the programm**
 Install the .zip folder and unarchive it
 
 Open folder in command line on your device
+
 ```
 make clean
 ```
