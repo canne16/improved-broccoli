@@ -10,6 +10,10 @@
 
 #define EPS 1e-5
 
+unsigned long long int self_collision_count = 0;
+unsigned long long int wall_collision_count = 0;
+double distance = 0;
+
 unsigned int circles_size = 4;
 unsigned int sections_size = 4;
 int border_id = -1;
@@ -109,16 +113,6 @@ int add_circle(double r, double m, double x, double y, double vx, double vy)
                 collision_matrix_c_s[i][j] = 1;
             }
         }
-
-/*
-        for (int i = circles_count / 2; i < circles_count; i++)
-        {
-            collision_matrix_c_s[i] = calloc(sections_size, sizeof(int));
-            for (int j = 0; j < sections_size; j++)
-            {
-                collision_matrix_c_s[i][j] = 1;
-            }
-        }*/
     }
 
     circles[circles_count++] = circle;
@@ -171,12 +165,10 @@ void set_borders(double x1, double y1, double x2, double y2)
     add_section(x1, y1, x1, y2);
     add_section(x2, y2, x2, y1);
     add_section(x2, y2, x1, y2);
-    fflush(stdout);
 }
 
 void set_collision_c_c(int x, int y, int col)
 {
-    printf("setting %d %d %d\n", x, y, col);
     collision_matrix_c_c[x][y] = col;
     collision_matrix_c_c[y][x] = col;
 }
@@ -275,8 +267,6 @@ void step(double delta_max)
                     continue;
                 }
                 
-                //printf("nx: %lf, ny: %lf, dt: %lf, d: %lf\n", nx, ny, dt, d);
-
                 double touch_x, touch_y;
 
                 if (circles[i]->vx * nx + circles[i]->vy * ny >= 0)
@@ -295,8 +285,6 @@ void step(double delta_max)
                 double a = sqrt(delta_x * delta_x + delta_y * delta_y);
                 double b = sqrt((sections[j]->x1 - touch_x) * (sections[j]->x1 - touch_x) + (sections[j]->y1 - touch_y) * (sections[j]->y1 - touch_y));
                 double c = sqrt((sections[j]->x2 - touch_x) * (sections[j]->x2 - touch_x) + (sections[j]->y2 - touch_y) * (sections[j]->y2 - touch_y));
-
-                //printf("a: %lf, b: %lf, c: %lf, tx: %lf, ty: %lf\n", a, b, c, touch_x, touch_y);
 
                 if (a < b + c - EPS)
                     continue;
@@ -386,6 +374,8 @@ void step(double delta_max)
             continue;
         circles[i]->x += circles[i]->vx * dt_min;
         circles[i]->y += circles[i]->vy * dt_min;
+
+        distance += sqrt(circles[i]->vx * dt_min * circles[i]->vx * dt_min + circles[i]->vy * dt_min * circles[i]->vy * dt_min);
     }
 
     if (i_min == -1)
@@ -393,6 +383,7 @@ void step(double delta_max)
     switch (type)
     {
     case 1:
+        self_collision_count++;
         double r = circles[i_min]->r + circles[j_min]->r;
         double sin_phi = (circles[j_min]->y - circles[i_min]->y) / r;
         double cos_phi = (circles[j_min]->x - circles[i_min]->x) / r;
@@ -426,6 +417,7 @@ void step(double delta_max)
         break;
     case 2:
         {
+            wall_collision_count++;
             double nx = +(sections[j_min]->y1 - sections[j_min]->y2);
             double ny = -(sections[j_min]->x1 - sections[j_min]->x2);
             double l = sqrt(nx * nx + ny * ny);
@@ -440,6 +432,7 @@ void step(double delta_max)
         break;
     case 3:
         {
+            wall_collision_count++;
             double r = circles[i_min]->r;
             double sin_phi = (sections[j_min]->y1 - circles[i_min]->y) / r;
             double cos_phi = (sections[j_min]->x1 - circles[i_min]->x) / r;
@@ -455,6 +448,7 @@ void step(double delta_max)
         break;
     case 4:
         {
+            wall_collision_count++;
             double r = circles[i_min]->r;
             double sin_phi = (sections[j_min]->y2 - circles[i_min]->y) / r;
             double cos_phi = (sections[j_min]->x2 - circles[i_min]->x) / r;
@@ -495,6 +489,13 @@ void free_all()
     }
     free(collision_matrix_c_c);
     free(collision_matrix_c_s);
+}
+
+void reset_vars()
+{
+    self_collision_count = 0;
+    wall_collision_count = 0;
+    distance = 0;
 }
 
 #ifdef DEBUG

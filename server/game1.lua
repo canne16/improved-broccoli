@@ -84,7 +84,6 @@ function tick()
   res = "add 0 v -0.01\n"..
         "add 1 v -0.01\n"..
         "add 2 v -0.01\n"
-  --res = ""
   dv = "0.05"
 
   if s0 == 1 then

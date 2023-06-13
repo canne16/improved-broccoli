@@ -10,7 +10,7 @@
 
 #define TICK 1
 #define DELAY 1000
-#define IP "192.168.0.153"
+#define IP "192.168.50.125"
 #define PORT 8787
 #define WIDTH 1920
 #define HEIGHT 1080
