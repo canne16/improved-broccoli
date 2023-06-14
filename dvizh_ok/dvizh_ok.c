@@ -12,6 +12,7 @@
 
 unsigned long long int self_collision_count = 0;
 unsigned long long int wall_collision_count = 0;
+double p_sum = 0;
 double distance = 0;
 
 unsigned int circles_size = 4;
@@ -426,6 +427,8 @@ void step(double delta_max)
 
             double alpha = circles[i_min]->vx * nx + circles[i_min]->vy * ny;
             
+            p_sum += circles[i_min]->m * 2 * alpha;
+
             circles[i_min]->vx -= 2 * nx * alpha;
             circles[i_min]->vy -= 2 * ny * alpha;
         }
