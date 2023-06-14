@@ -427,7 +427,7 @@ void step(double delta_max)
 
             double alpha = circles[i_min]->vx * nx + circles[i_min]->vy * ny;
             
-            p_sum += circles[i_min]->m * 2 * alpha;
+            p_sum += circles[i_min]->m * 2 * fabs(alpha);
 
             circles[i_min]->vx -= 2 * nx * alpha;
             circles[i_min]->vy -= 2 * ny * alpha;
@@ -499,6 +499,7 @@ void reset_vars()
     self_collision_count = 0;
     wall_collision_count = 0;
     distance = 0;
+    p_sum = 0;
 }
 
 #ifdef DEBUG

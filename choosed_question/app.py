@@ -26,7 +26,7 @@ parser = argparse.ArgumentParser(
                     description="Demonstration of physic engine written by vlad_cool for MIPT project")
 
 parser.add_argument("-m", "--mode", type=int, default=0,
-                    help="MODES: 0 - Maxwell")
+                    help="MODES: 0 - Random position, const velovity (default), 1 - from center, random angle")
 parser.add_argument("-v", "--velocity", type=int, default=256,
                     help="Velocity of particles")
 parser.add_argument("-n", "--number", type=int, default=300,
@@ -60,6 +60,23 @@ match args.mode:
         for i in range(args.number):
             phi = randint(0, 2000000) / 1000000
             dvizh_ok.add_circle(2, 1, randint(50, 950), randint(50, 950), args.velocity * math.sin(math.pi * phi), args.velocity * math.cos(math.pi * phi))
+        for i in range(args.precount):
+            dvizh_ok.step(TIME_K)
+            print(i)
+        dvizh_ok.reset_vars()
+    case 1:
+        #TIME_K = 5
+        TIME_K = 5
+
+        dvizh_ok.add_section(40, 40, 1040, 40)
+        dvizh_ok.add_section(40, 40, 40, 1040)
+        dvizh_ok.add_section(1040, 1040, 1040, 40)
+        dvizh_ok.add_section(1040, 1040, 40, 1040)
+
+        #dvizh_ok.add_circle(2, 100, randint(50, 950), randint(50, 950), 0, 0)
+        for i in range(args.number):
+            phi = randint(0, 2000000) / 1000000
+            dvizh_ok.add_circle(2, 1, 540, 540, args.velocity * math.sin(math.pi * phi), args.velocity * math.cos(math.pi * phi))
         for i in range(args.precount):
             dvizh_ok.step(TIME_K)
             print(i)
@@ -184,8 +201,8 @@ while running:
         GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 6), f"время: {frame_counter // FPS}", WHITE)
         GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 7), f"средняя скорость: {round(v_sum / sum)}", WHITE)
         GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 8), f"наиболее вероятная скорость: {round(nvel.index(max(nvel)) / len (nvel) * vmax)}", WHITE)
-        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 9), f"P: {round(ctypes.c_double.in_dll(dvizh_ok, 'distance').value * FPS / (4000 * frame_counter / TIME_K))}", WHITE)
-        
+        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 9), f"P: {round(ctypes.c_double.in_dll(dvizh_ok, 'p_sum').value * FPS / (4000 * frame_counter / TIME_K))}", WHITE)
+
     if args.fps:
         fps_counter.render()
         fps_counter.update()
