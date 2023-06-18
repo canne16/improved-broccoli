@@ -1,0 +1,21 @@
+#!/usr/bin/gnuplot -persist
+
+set term png
+set terminal pngcairo enhanced size 1920, 1080
+set output "1.png"
+
+#set term pdf
+#set terminal pdf
+#set output "1.pdf"
+
+set title "График распределения по модулю скорости от среднеквадратичной скорости"
+set xlabel "v, м/с"
+set xrange [0:];
+set yrange [0:];
+unset ytics
+
+plot "csv/vel_100.csv" using 1:2 with points pointtype 22 ps 0.5 linecolor "red"  title "100 м/с", \
+     "csv/vel_150.csv" using 1:2 with points pointtype 22 ps 0.5 linecolor "blue"  title "150 м/с", \
+     "csv/vel_200.csv" using 1:2 with points pointtype 22 ps 0.5 linecolor "orange"  title "200 м/с", \
+     "csv/vel_250.csv" using 1:2 with points pointtype 22 ps 0.5 linecolor "violet"  title "250 м/с", \
+     "csv/vel_300.csv" using 1:2 with points pointtype 22 ps 0.5 linecolor "green"  title "300 м/с"

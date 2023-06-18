@@ -81,6 +81,24 @@ match args.mode:
             dvizh_ok.step(TIME_K)
             print(i)
         dvizh_ok.reset_vars()
+    case 2:
+        #TIME_K = 5
+        TIME_K = 5
+
+        dvizh_ok.add_section(40, 40, 1040, 40)
+        dvizh_ok.add_section(40, 40, 40, 1040)
+        dvizh_ok.add_section(1040, 1040, 1040, 40)
+        dvizh_ok.add_section(1040, 1040, 40, 1040)
+
+        #dvizh_ok.add_circle(2, 100, randint(50, 950), randint(50, 950), 0, 0)
+        phi = randint(0, 2000000) / 1000000
+        dvizh_ok.add_circle(2, 1, randint(50, 950), randint(50, 950), math.sqrt(args.number) * args.velocity * math.sin(math.pi * phi), math.sqrt(args.number) * args.velocity * math.cos(math.pi * phi))
+        for i in range(args.number - 1):
+            dvizh_ok.add_circle(2, 1, randint(50, 950), randint(50, 950), 0, 0)
+        for i in range(args.precount):
+            dvizh_ok.step(TIME_K)
+            print(i)
+        dvizh_ok.reset_vars()
     case _:
         print("Unknowh mode")
         parser.print_help()
@@ -193,15 +211,15 @@ while running:
 
     if self_collision_count > 0 and wall_collision_count > 0 and frame_counter > 0:
         GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 0), f"n = {args.number}", WHITE)
-        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 1), f"v = {args.velocity}", WHITE)
-        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 2), f"λ = {round(ctypes.c_double.in_dll(dvizh_ok, 'distance').value / (self_collision_count * 2 + wall_collision_count))}", WHITE)
-        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 3), f"λ_0 = {round(ctypes.c_double.in_dll(dvizh_ok, 'distance').value / (self_collision_count * 2))} (без учёта столкновений со стенками)", WHITE)
-        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 4), f"столкновений со стенками за секунду: {round(wall_collision_count * FPS / frame_counter / TIME_K)}", WHITE)
-        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 5), f"столкновений между собой за секунду: {round(self_collision_count * FPS / frame_counter / TIME_K)}", WHITE)
-        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 6), f"время: {frame_counter // FPS}", WHITE)
+        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 1), f"v_кв = {args.velocity}", WHITE)
+        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 2), f"время: {frame_counter // FPS}", WHITE)
+        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 3), f"λ = {round(ctypes.c_double.in_dll(dvizh_ok, 'distance').value / (self_collision_count * 2 + wall_collision_count))}", WHITE)
+        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 4), f"λ_0 = {round(ctypes.c_double.in_dll(dvizh_ok, 'distance').value / (self_collision_count * 2))} (без учёта столкновений со стенками)", WHITE)
+        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 5), f"столкновений со стенками за секунду: {round(wall_collision_count * FPS / frame_counter / TIME_K)}", WHITE)
+        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 6), f"столкновений между собой за секунду: {round(self_collision_count * FPS / frame_counter / TIME_K)}", WHITE)
         GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 7), f"средняя скорость: {round(v_sum / sum)}", WHITE)
         GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 8), f"наиболее вероятная скорость: {round(nvel.index(max(nvel)) / len (nvel) * vmax)}", WHITE)
-        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 9), f"P: {round(ctypes.c_double.in_dll(dvizh_ok, 'p_sum').value * FPS / (4000 * frame_counter / TIME_K))}", WHITE)
+        GAME_FONT.render_to(screen, (graph_x1 + 10, 560 + 10 + 30 * 9), f"P: {round(ctypes.c_double.in_dll(dvizh_ok, 'p_sum').value * FPS / (4000 * frame_counter * TIME_K), 3)}", WHITE)
 
     if args.fps:
         fps_counter.render()
@@ -229,19 +247,31 @@ if args.screenshot:
     pygame.image.save(pygame.display.get_surface(), f"screenshots/res_vel_{args.velocity}_time_{args.time}_n_{args.number}.png")
 
 if args.dump:
-    with open(f"results/res_vel_{args.velocity}_time_{args.time}_n_{args.number}", "w") as file:
-        file.write(f"n = {args.number}\n")
-        file.write(f"v = {args.velocity}\n")
-        file.write(f"λ = {ctypes.c_double.in_dll(dvizh_ok, 'distance').value / (self_collision_count * 2 + wall_collision_count)}\n")
-        file.write(f"λ_0 = {ctypes.c_double.in_dll(dvizh_ok, 'distance').value / (self_collision_count * 2)} (без учёта столкновений со стенками)\n")
-        file.write(f"столкновений со стенками за секунду: {wall_collision_count * FPS / frame_counter / TIME_K}\n")
-        file.write(f"столкновений между собой за секунду: {self_collision_count * FPS / frame_counter / TIME_K}\n")
-        file.write(f"время: {frame_counter // FPS}\n")
-        file.write(f"средняя скорость: {v_sum / sum}\n")
-        file.write(f"наиболее вероятная скорость: {nvel.index(max(nvel)) / len (nvel) * vmax}\n")
-        file.write(f"P: {ctypes.c_double.in_dll(dvizh_ok, 'distance').value * FPS / (4000 * frame_counter / TIME_K)}\n")
-        file.write(f"nmax: {nmax}\n")
-        file.write(f"{nvel}\n")
-    
+    n = args.number / 1000000
+    v_avg = v_sum / sum
+    #with open(f"results/res_vel_{args.velocity}_time_{args.time}_n_{args.number}", "w") as file:
+    #    file.write(f"n = {args.number}\n")
+    #    file.write(f"v = {args.velocity}\n")
+    #    file.write(f"λ = {ctypes.c_double.in_dll(dvizh_ok, 'distance').value / (self_collision_count * 2 + wall_collision_count)}\n")
+    #    file.write(f"λ_0 = {ctypes.c_double.in_dll(dvizh_ok, 'distance').value / (self_collision_count * 2)} (без учёта столкновений со стенками)\n")
+    #    file.write(f"столкновений со стенками за секунду: {wall_collision_count * FPS / frame_counter}\n")
+    #    file.write(f"столкновений между собой за секунду: {self_collision_count * FPS / frame_counter}\n")
+    #    file.write(f"время: {frame_counter // FPS}\n")
+    #    file.write(f"средняя скорость: {v_sum / sum}\n")
+    #    file.write(f"наиболее вероятная скорость: {nvel.index(max(nvel)) / len (nvel) * vmax}\n")
+    #    file.write(f"P: {ctypes.c_double.in_dll(dvizh_ok, 'distance').value * FPS / (4000 * frame_counter * TIME_K)}\n")
+    #    file.write(f"nmax: {nmax}\n")
+    #    file.write(f"{nvel}\n")
+
+    with open("data/res_lambda", "a") as file:
+        file.write(f"[{args.number}], [{args.velocity}], [{1 / (2 * 6 * n)}], [{ctypes.c_double.in_dll(dvizh_ok, 'distance').value / (self_collision_count * 2)}], \n")
+    with open("data/wall_collision", "a") as file:
+        file.write(f"[{args.number}], [{args.velocity}], [{4000 * n * v_avg / math.pi}], [{wall_collision_count * FPS / frame_counter / TIME_K}], \n")
+    with open("data/res_avg_v", "a") as file:
+        file.write(f"[{args.number}], [{args.velocity}], [{math.sqrt(math.pi) * args.velocity / 2}], [{v_avg}], \n")
+    with open("data/res_prob_v", "a") as file:
+        file.write(f"[{args.number}], [{args.velocity}], [{args.velocity / math.sqrt(2)}], [{nvel.index(max(nvel)) / len (nvel) * vmax}], \n")
+    with open("data/res_pressure", "a") as file:
+        file.write(f"[{args.number}], [{args.velocity}], [{n * 1 * args.velocity ** 2 / 2}], [{ctypes.c_double.in_dll(dvizh_ok, 'p_sum').value * FPS / (4000 * frame_counter * TIME_K)}], \n")
 
 pygame.quit()
