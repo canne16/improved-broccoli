@@ -1,46 +1,63 @@
-# About project
+# Project Description
 
-This project is about precise physic of circle objects simulation. By precise I mean processing all collisions of circles with each other and boundaries in right order using the laws of physics.
-This was made as first year project for MIPT DREC informatics course.
+This project focuses on simulating the precise physics of circular objects, ensuring accurate collision handling between circles and boundaries based on the laws of physics. Originally developed as a first-year project for the MIPT DREC informatics course, it aims to demonstrate realistic interactions between objects in a simulated environment.
 
-# Structure
+# Structure Overview
 
-This project consists of three main parts: 
-- dvizh_ok - c library for physics and python demos (including 2D gas simulation, check choosed_question.pdf file)
-- server - simple udp game server, which supports lua scripts to make games (with scripts you can create and delete objects and process keys got from clients)
-- client - simple python pygame app to draw scene got from server and send key presses 
+The project comprises three main components:
 
-# Running
+- dvizh_ok: This is a C library designed for physics computations and includes Python demos. The demos showcase various simulations, such as 2D gas simulations. Users can refer to the "choosed_question.pdf" file for detailed information.
+
+- Server: A simple UDP game server that supports Lua scripts for game development. These scripts enable users to create and delete objects, as well as process key inputs received from clients.
+
+- Client: A straightforward Python pygame application responsible for visualizing the scenes provided by the server and transmitting key presses.
+
+# Running the Project
 
 ## Requirements
 
-- Linux (other platforms wasn't tested)
-- Python3 and Pygame
-- Make
-- Lua and uv libraries
+To run the project, ensure you have the following prerequisites:
 
-## Demos
+- Linux OS (compatibility with other platforms has not been verified)
+- Python 3 with Pygame
+- Make utility
+- Lua programming language and the uv library
 
-To run physic demos you should clone repo, `cd` into it, `cd` into dvizh_ok direcotory, run `make` and then run `physic_demo.py`.
+## Running Demos
 
-## Game
+To execute the physics demos:
+1. Clone the repository.
+2. Navigate to the project directory.
+3. Enter the "dvizh_ok" directory.
+4. Run the make command.
+5. Execute the physic_demo.py script.
 
-0. Check `server/server.c` file and change IP to your local ip address (Yes, that's stupid)
-1. run `make` in the root of repo, then you
-2. run `start.sh` script
-3. run clients (`player/player.py`)
+## Running the Game
 
-## Creating games
+To set up and run the game:
+1. Modify the IP address in the server/server.c file to match your local IP address.
+2. Run make in the root directory of the repository.
+3. Execute the start.sh script.
+4. Launch the clients using player/player.py.
 
-Game script consists of two main functions: `set_pos()` for initial game setup and `translate` for translating key presses to dvizh_ok commands (visit `server/game.lua` for example)
+## Creating Games
 
-### dvizh_ok commands
+Game scripts are structured around two main functions:
+- set_pos(): Used for initial game setup.
+- translate(): Translates key presses into commands for dvizh_ok. Refer to server/game.lua for a sample script.
 
-There are a few commands to create, delete circles and boundaries and change their collision types (yes or no for any circle-circle and circle-section pair). You can also change circles' mass, size, position and velocity by setting value, adding value and limiting value (check `dvizh_ok/main.c` source file for more info)
-All commands above should start with `begin` and after getting `end` dvizh_ok will render them for one step and return result
-There are also `init` and `exit` commands which should be outside `begin` (This is planned to be changed in future)
+### dvizh_ok Commands
+
+Various commands are available to manipulate circles and boundaries within the simulation:
+- Create and delete circles and boundaries.
+- Modify collision types between circles and sections.
+- Adjust properties like mass, size, position, and velocity of circles.
+- Commands must be enclosed between begin and end to be processed by dvizh_ok.
+- Additional commands like init and exit should be outside the begin scope.
 
 # Authors
-- Matveev Vladislav (dvizh_ok and game script)
-- Kirill Madorsky (server)
-- Alisa Victorova (client)
+
+The project was contributed to by the following individuals:
+- Matveev Vladislav: dvizh_ok library development and game script creation.
+- Kirill Madorsky: Server implementation.
+- Alisa Victorova: Client application development.
