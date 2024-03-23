@@ -59,5 +59,5 @@ Various commands are available to manipulate circles and boundaries within the s
 
 The project was contributed to by the following individuals:
 - Matveev Vladislav: dvizh_ok library development and game script creation.
-- Kirill Madorsky: Server implementation.
+- Kirill Madorskii: Server implementation.
 - Alisa Victorova: Client application development.
